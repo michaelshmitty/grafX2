@@ -188,10 +188,12 @@ else
     # 10    => 10.6 Snow Leopard (i386 only)
     MACHINE = $(shell gcc -dumpmachine)
     DARWINVER = $(shell gcc -dumpmachine | sed 's/.*darwin\([0-9]*\).*/\1/' )
-    ifeq (greater, $(shell [ $(DARWINVER) -gt 9 ] && echo "greater"))
+    ifeq (greater, $(shell [ $(DARWINVER) -gt 11 ] && echo "greater"))
+    $(error Makefile supports only Mac OS X up to 10.7 (Lion). Use provided Xcode project instead)
+    else
+    ifeq (11, $(DARWINVER))
     MACOSX_ARCH = -arch x86_64 -arch i386
     #MACOSX_LION = 1
-    else
     ifeq (9, $(DARWINVER))
     MACOSX_ARCH = -arch ppc -arch i386
     else
@@ -199,6 +201,7 @@ else
     MACOSX_ARCH = -arch ppc
     else
     MACOSX_ARCH = -arch i386
+    endif
     endif
     endif
     endif
