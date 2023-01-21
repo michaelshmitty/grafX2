@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include "../struct.h"
+#include "../global.h"
 
 void Warning_message(const char * message)
 {
@@ -57,11 +58,14 @@ void Window_help(int section, const char * sub_section)
 
 void Open_window(word width, word height, const char * title)
 {
-  printf("Open_window() %hux%hu : %s\n", width, height, title);
+  Windows_open++;
+  printf("Open_window() #%hhu %hux%hu : %s\n", Windows_open, width, height, title);
 }
 
 void Close_window()
 {
+  printf("Close_window() #%hhu\n", Windows_open);
+  Windows_open--;
 }
 
 void Print_in_window(short x,short y,const char * str,byte text_color,byte background_color)
