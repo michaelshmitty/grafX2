@@ -146,7 +146,7 @@ ifdef COMSPEC
   PLATFORM = win32
   #some misc files we have to add to the release archive under windows.
   PLATFORMFILES += $(wildcard ../bin/libpng*.dll) $(wildcard ../bin/libjpeg*.dll) bin/zlib1.dll $(TTFLIBS)
-  PLATFORMFILES += bin/libtiff-5.dll
+  PLATFORMFILES += $(wildcard ../bin/libtiff-*.dll)
   ifdef APPVEYOR
   ZIP = 7z
   ZIPOPT = a
@@ -534,7 +534,7 @@ endif
       PLATFORM = win32
       PLATFORMOBJ = winres.o
       PLATFORMFILES = $(wildcard ../bin/libpng*.dll) $(wildcard ../bin/libjpeg*.dll) bin/zlib1.dll $(TTFLIBS)
-      PLATFORMFILES += bin/libtiff-5.dll
+      PLATFORMFILES += $(wildcard ../bin/libtiff-*.dll)
       ifeq ($(API),sdl)
       PLATFORMFILES += bin/SDL.dll bin/SDL_image.dll
       endif

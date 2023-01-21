@@ -7,7 +7,11 @@
 !define FREETYPEDLL libfreetype-6.dll
 !define JPEGDLL     libjpeg-9.dll
 !define PNGDLL      libpng16-16.dll
+!if /FileExists ..\bin\libtiff-5.dll
 !define TIFFDLL     libtiff-5.dll
+!else if /FileExists ..\bin\libtiff-6.dll
+!define TIFFDLL     libtiff-6.dll
+!endif
 
 ;--------------------------------
 ;Include Modern UI
