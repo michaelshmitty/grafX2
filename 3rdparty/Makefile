@@ -581,7 +581,11 @@ endif
 	echo "" >> ../doc/README-tiff.txt
 	echo "License :" >> ../doc/README-tiff.txt
 	echo "" >> ../doc/README-tiff.txt
-	cat $(LIBTIFF)/COPYRIGHT >> ../doc/README-tiff.txt
+	if [ -f $(LIBTIFF)/COPYRIGHT ] ; then \
+	  cat $(LIBTIFF)/COPYRIGHT >> ../doc/README-tiff.txt ; \
+	else \
+	  tail -n +3 $(LIBTIFF)/LICENSE.md >> ../doc/README-tiff.txt ; \
+	fi
 
 $(PREFIX)/lib/libpng.a:	$(PREFIX)/lib/libz.a
 
