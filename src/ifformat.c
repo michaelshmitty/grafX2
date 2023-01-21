@@ -37,13 +37,17 @@
 #else
 #define WIN32_BSWAP32 __builtin_bswap32
 #endif
-#endif
-
-#ifdef __APPLE__
+#elif defined(__APPLE__)
 #include <libkern/OSByteOrder.h>
 #ifndef be32toh
 #define be32toh(x) OSSwapBigToHostInt32(x)
 #endif
+#elif defined(USE_SDL) || defined(USE_SDL2)
+#include <SDL_endian.h>
+#elif defined(__FreeBSD__)
+#include <sys/endian.h>
+#else
+#include <endian.h>
 #endif
 
 //////////////////////////////////// IFF ////////////////////////////////////
