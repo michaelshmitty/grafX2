@@ -107,7 +107,7 @@ job_gp2x:
     before_script:
         - dpkg --add-architecture i386
         - apt-get update -qq && apt-get install -y -qq zip dos2unix
-        - apt-get install -y -qq multiarch-support libc6:i386
+        - apt-get install -y -qq libc6:i386
         - "sh ./.install-gp2x-toolchain.sh"
     script:
         - "NOLUA=1 GP2XCROSS=1 make -j2 grafx2 || exit 1"
