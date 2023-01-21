@@ -643,9 +643,14 @@ int Init_program(int argc,char * argv[])
   Data_directory = Get_data_directory(program_directory);
   // Choose directory for settings (read/write)
   Config_directory = Get_config_directory(program_directory);
+#ifdef __macosx__
+  // use user folder on macOS
+  extern char* getMacosUserFolder(void);
+  Main.selector.Directory = getMacosUserFolder();
+#else
   // Get current directory
   Main.selector.Directory = Get_current_directory(NULL, &Main.selector.Directory_unicode, 0);
-
+#endif
   GFX2_Log(GFX2_DEBUG, "program directory : %s\n", program_directory);
   GFX2_Log(GFX2_DEBUG, "Data directory : %s\n", Data_directory);
   GFX2_Log(GFX2_DEBUG, "Config directory : %s\n", Config_directory);

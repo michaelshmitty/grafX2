@@ -813,8 +813,8 @@ int GFX2_MessageBox(const char * text, const char * caption, unsigned int type)
 #elif defined(__macosx__)
   int r;
   CFOptionFlags result;
-  CFStringRef text_ref = CFStringCreateWithCString(NULL, text, strlen(text));
-  CFStringRef caption_ref = CFStringCreateWithCString(NULL, caption, strlen(text));
+  CFStringRef text_ref = CFStringCreateWithCString(NULL, text, (unsigned int)strlen(text));
+  CFStringRef caption_ref = CFStringCreateWithCString(NULL, caption, (unsigned int)strlen(text));
   r = CFUserNotificationDisplayAlert(0, (CFOptionFlags)type,
                                  NULL, NULL, NULL,
                                  caption_ref, text_ref,

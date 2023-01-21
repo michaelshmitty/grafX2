@@ -55,6 +55,9 @@ int set_tiff_paste_board(const void * tiff, unsigned long size)
 #endif
   if (!b)
     NSLog(@"Failed to set data in pasteboard");
-  [data release];
+  // newer versions of macOS need ARC, so we check for that here
+#if !defined(__clang) && !(__has_feature(objc_arc))
+    [data release];
+#endif
   return (int)b;
 }

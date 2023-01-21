@@ -5,10 +5,11 @@
     Feel free to customize this file to suit your needs
 */
 
-#import "SDL.h"
-#import "SDLMain.h"
+#import <SDL/SDL.h>
 #import <sys/param.h> /* for MAXPATHLEN */
 #import <unistd.h>
+#import "SDLMain.h"
+
 
 /* For some reaon, Apple removed setAppleMenu from the headers in 10.4,
  but the method still is there and works. To avoid warnings, we declare
@@ -40,14 +41,15 @@ static int    gArgc;
 static char  **gArgv;
 static BOOL   gFinderLaunch;
 static BOOL   gCalledAppMainline = FALSE;
+BOOL   enableKeys = FALSE;
 
 static NSString *getApplicationName(void)
 {
-    NSDictionary *dict;
+    const NSDictionary *dict;
     NSString *appName = 0;
 
     /* Determine the application name */
-    dict = (NSDictionary *)CFBundleGetInfoDictionary(CFBundleGetMainBundle());
+    dict = (const NSDictionary *)CFBundleGetInfoDictionary(CFBundleGetMainBundle());
     if (dict)
         appName = [dict objectForKey: @"CFBundleName"];
     
@@ -76,19 +78,14 @@ static NSString *getApplicationName(void)
     event.type = SDL_QUIT;
     SDL_PushEvent(&event);
 }
-/* override NSApplication:sendEvent, to keep Cocoa from beeping on
-   non-command keystrokes */
+/* Prevent OSX beeping on unrecognised keystrokes */
 - (void)sendEvent:(NSEvent *)anEvent {
-	if (NSKeyDown == [anEvent type] || NSKeyUp == [anEvent type]) {
-		if ([anEvent modifierFlags] & NSCommandKeyMask)
-        {
-//            SDL_SetModState(SDL_GetModState() /*| KMOD_META*/);
-            [super sendEvent: anEvent];
-        }
+	if( NSKeyDown == [anEvent type] || NSKeyUp ==
+	   [anEvent type] ) {
+		if( enableKeys || [anEvent modifierFlags] & NSCommandKeyMask )
+			[super sendEvent: anEvent];
 	} else
-    {
 		[super sendEvent: anEvent];
-    }
 }
 @end
 
@@ -179,8 +176,11 @@ static void setApplicationMenu(void)
     [NSApp setAppleMenu:appleMenu];
 
     /* Finally give up our references to the objects */
+    // newer versions of macOS need ARC, so we check for that here
+#if !defined(__clang) && !(__has_feature(objc_arc))
     [appleMenu release];
     [menuItem release];
+#endif
 }
 
 /* Create a window menu */
@@ -195,7 +195,9 @@ static void setupWindowMenu(void)
     /* "Minimize" item */
     menuItem = [[NSMenuItem alloc] initWithTitle:@"Minimize" action:@selector(performMiniaturize:) keyEquivalent:@"m"];
     [windowMenu addItem:menuItem];
+#if !defined(__clang) && !(__has_feature(objc_arc))
     [menuItem release];
+#endif
     
     /* Put menu into the menubar */
     windowMenuItem = [[NSMenuItem alloc] initWithTitle:@"Window" action:nil keyEquivalent:@""];
@@ -206,14 +208,18 @@ static void setupWindowMenu(void)
     [NSApp setWindowsMenu:windowMenu];
 
     /* Finally give up our references to the objects */
+#if !defined(__clang) && !(__has_feature(objc_arc))
     [windowMenu release];
     [windowMenuItem release];
+#endif
 }
 
 /* Replacement for NSApplicationMain */
 static void CustomApplicationMain (int argc, char **argv)
 {
-    NSAutoreleasePool	*pool = [[NSAutoreleasePool alloc] init];
+#if !defined(__clang) && !(__has_feature(objc_arc))
+    NSAutoreleasePool    *pool = [[NSAutoreleasePool alloc] init];
+#endif
     SDLMain				*sdlMain;
 
     /* Ensure the application object is initialised */
@@ -242,8 +248,10 @@ static void CustomApplicationMain (int argc, char **argv)
     /* Start the main event loop */
     [NSApp run];
     
+#if !defined(__clang) && !(__has_feature(objc_arc))
     [sdlMain release];
     [pool release];
+#endif
 }
 
 #endif
@@ -311,8 +319,8 @@ static void CustomApplicationMain (int argc, char **argv)
     [self fixMenu:[NSApp mainMenu] withAppName:getApplicationName()];
 #endif
 
-    setenv("SDL_ENABLEAPPEVENTS", "1", 1);
-
+	/* Enable menu shortcuts */
+	setenv ("SDL_ENABLEAPPEVENTS", "1", 1);
     /* Hand off to main application code */
     gCalledAppMainline = TRUE;
     status = SDL_main (gArgc, gArgv);
@@ -328,13 +336,13 @@ static void CustomApplicationMain (int argc, char **argv)
 - (NSString *)stringByReplacingRange:(NSRange)aRange with:(NSString *)aString
 {
     unsigned int bufferSize;
-    unsigned int selfLen = [self length];
-    unsigned int aStringLen = [aString length];
+    unsigned int selfLen = (unsigned int)[self length];
+    unsigned int aStringLen = (unsigned int)[aString length];
     unichar *buffer;
     NSRange localRange;
     NSString *result;
 
-    bufferSize = selfLen + aStringLen - aRange.length;
+    bufferSize = selfLen + aStringLen - (unsigned int)aRange.length;
     buffer = NSAllocateMemoryPages(bufferSize*sizeof(unichar));
     
     /* Get first part into buffer */
@@ -384,16 +392,27 @@ int main (int argc, char **argv)
         int i;
         gArgc = argc;
         gArgv = (char **) SDL_malloc(sizeof (char *) * (argc+1));
-        for (i = 0; i <= argc; i++)
-            gArgv[i] = argv[i];
+        for (i = 0; i < argc; i++)
+            {
+                if (strcmp(argv[i],"-NSDocumentRevisionsDebugMode") == 0 )
+                {
+                    // skip this and next arg, only set by Xcode debug
+                    i++;
+                    gArgc = gArgc - 2;
+                    continue;
+                }
+                gArgv[i] = argv[i];
+               // NSLog(@"Arg %d: %s",i,gArgv[i]);
+            }
+        gArgv[i] = NULL;
         gFinderLaunch = NO;
     }
 
 #if SDL_USE_NIB_FILE
     [SDLApplication poseAsClass:[NSApplication class]];
-    NSApplicationMain (argc, argv);
+    NSApplicationMain (gArgc, gArgv);
 #else
-    CustomApplicationMain (argc, argv);
+    CustomApplicationMain (gArgc, gArgv);
 #endif
     return 0;
 }
@@ -416,4 +435,12 @@ const char * get_paste_board(void)
   NSString * string = [pasteboard stringForType:NSStringPboardType];
   NSLog(@"pasteboard content : %@", string);
   return [string UTF8String];
+}
+char* getMacosUserFolder(void)
+{
+    char *result = (char *)malloc(sizeof(char) * (MAXPATHLEN + 1));
+    //NSLog(@"Folder: %@", NSHomeDirectoryForUser(NSUserName()));
+    NSURL *folder = [NSURL fileURLWithPath:NSHomeDirectory()];
+    [[folder path] getCString:result maxLength:MAXPATHLEN encoding:NSUTF8StringEncoding];
+    return result;
 }
