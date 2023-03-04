@@ -545,7 +545,8 @@ endif
 
 $(PREFIX)/lib/libjpeg.a:	$(JPEGDIR)/.ok
 	$(MKDIR) $(JPEGDIR)/build$(PLATFORMDIR)
-	cd $(JPEGDIR)/build$(PLATFORMDIR) && CC=$(CC) ../configure --prefix=$(PREFIX) --host=$(HOST)
+	cd $(JPEGDIR)/build$(PLATFORMDIR) && CC="$(CC) $(LDFLAGS)" \
+	  ../configure --prefix=$(PREFIX) --host=$(HOST)
 	cd $(JPEGDIR)/build$(PLATFORMDIR) && $(MAKE)
 	cd $(JPEGDIR)/build$(PLATFORMDIR) && $(MAKE) install
 ifdef WIN32
