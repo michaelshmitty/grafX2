@@ -550,6 +550,7 @@ $(PREFIX)/lib/libjpeg.a:	$(JPEGDIR)/.ok
 	cd $(JPEGDIR)/build$(PLATFORMDIR) && $(MAKE) install
 ifdef WIN32
 	$(MKDIR) ../bin && for f in $(PREFIX)/bin/libjpeg*.dll ; do \
+	    $(OBJDUMP) -p $$f | grep 'DLL Name' ; \
 	    $(CP) $$f ../bin ; \
 	    $(STRIP) ../bin/`basename $$f` ; \
 	  done
