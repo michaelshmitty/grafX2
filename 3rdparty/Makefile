@@ -128,6 +128,7 @@ FREETYPESIG=$(FREETYPEARCH).sig
 FREETYPEURL=https://download.savannah.gnu.org/releases/freetype/$(FREETYPEARCH)
 FREETYPEURLALT=https://sourceforge.net/projects/freetype/files/freetype2/$(FREETYPEVER)/$(FREETYPEARCH)
 FREETYPESIGURL=$(FREETYPEURL).sig
+FREETYPESIGURLALT=$(FREETYPEURLALT).sig
 LATESTFREETYPEVER := $(shell curl -s -S -I "https://sourceforge.net/projects/freetype/files/latest/download" |grep -i '^location:' | sed 's:.*/\([0-9.]*\)/.*:\1:' )
 LUAVER=5.3.6
 LUA=lua-$(LUAVER)
@@ -684,10 +685,11 @@ archives/%.tar.gz:
 	$(eval SHA256 = $($(BASE)SHA256))
 	$(eval SIG = $($(BASE)SIG))
 	$(eval SIGURL = $($(BASE)SIGURL))
+	$(eval SIGURLALT = $($(BASE)SIGURLALT))
 	@if [ -z "$(SIGURL)" ] && [ -z "$(SHA256)" ] ; then echo "Need either signature or hash to check the archive $@" ; false ; fi
 	@echo "$*: fetching $(URL) (or $(URLALT)) $(SIG)"
 	@cd $(@D) && ( $(GETURL) $(URL) || ( [ -n "$(URLALT)" ] && $(GETURL) $(URLALT) ) )
-	@[ -z "$(SIGURL)" ] || ( cd $(@D) && $(GETURL) $(SIGURL) && $(GPG) --verify $(SIG) ) || ( $(RM) $@ && false )
+	@[ -z "$(SIGURL)" ] || ( cd $(@D) && ( $(GETURL) $(SIGURL) || ( [ -n "$(SIGURLALT)" ] && $(GETURL) $(SIGURLALT) ) ) && $(GPG) --verify $(SIG) ) || ( $(RM) $@ && false )
 	@[ -z "$(SHA256)" ] || [ "`$(SHA256CMD) < $@`" = "$(SHA256)" ] || ( $(RM) $@ && echo "$@ SHA256 mismatch !" && false )
 	@echo $(URL) > $(BASE).source
 
