@@ -1,4 +1,4 @@
-# (c) 2018-2020 Thomas BERNARD
+# (c) 2018-2023 Thomas BERNARD
 #
 # Makefile to build GrafX2 library dependencies.
 #
@@ -186,6 +186,7 @@ endif
 
 BUILD_CC := $(CC)
 STRIP = strip
+OBJDUMP = objdump
 
 # There is no uname under windows, but we can guess we are there with the COMSPEC env.var
 # Windows specific
@@ -207,11 +208,13 @@ CROSS_CC ?= $(shell which i686-w64-mingw32-gcc || which mingw32-gcc)
 CROSS_AR ?= $(shell which i686-w64-mingw32-ar || which mingw32-ar)
 CROSS_RANLIB ?= $(shell which i686-w64-mingw32-ranlib || which mingw32-ranlib)
 CROSS_STRIP ?= $(shell which i686-w64-mingw32-strip || which mingw32-strip)
+CROSS_OBJDUMP ?= $(shell which i686-w64-mingw32-objdump || which mingw32-objdump)
 CROSS_LDFLAGS += -static-libgcc
 CC = $(CROSS_CC)
 AR = $(CROSS_AR)
 RANLIB = $(CROSS_RANLIB)
 STRIP = $(CROSS_STRIP)
+OBJDUMP = $(CROSS_OBJDUMP)
 CFLAGS = $(CROSS_CFLAGS)
 LDFLAGS = $(CROSS_LDFLAGS)
 endif
@@ -225,10 +228,12 @@ CROSS_CC ?= $(ARCH)-atari-mint-gcc
 CROSS_AR ?= $(ARCH)-atari-mint-ar
 CROSS_RANLIB ?= $(ARCH)-atari-mint-ranlib
 CROSS_STRIP ?= $(ARCH)-atari-mint-strip
+CROSS_OBJDUMP ?= $(ARCH)-atari-mint-objdump
 CC = $(CROSS_CC)
 AR = $(CROSS_AR)
 RANLIB = $(CROSS_RANLIB)
 STRIP = $(CROSS_STRIP)
+OBJDUMP = $(CROSS_OBJDUMP)
 endif
 
 HOST = $(shell $(CC) -dumpmachine)
