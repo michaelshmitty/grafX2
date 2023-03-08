@@ -389,7 +389,7 @@ $(PREFIX)/lib/libSDL2_ttf.a:	$(PREFIX)/lib/libSDL2main.a
 $(PREFIX)/lib/libSDL2_ttf.a:	$(SDL2TTF)/.ok
 	$(MKDIR) $(SDL2TTF)/build$(PLATFORMDIR)
 	cd $(SDL2TTF)/build$(PLATFORMDIR) && PKG_CONFIG_LIBDIR=$(PREFIX)/lib/pkgconfig \
-	  CC=$(CC) CPPFLAGS=-I$(PREFIX)/include LDFLAGS="-L$(PREFIX)/lib $(LDFLAGS)" \
+	  CC="$(CC) $(LDFLAGS)" CPPFLAGS=-I$(PREFIX)/include LDFLAGS="-L$(PREFIX)/lib $(LDFLAGS)" \
 	  ../configure --prefix=$(PREFIX) --with-sdl-prefix=$(PREFIX) \
 	  --with-freetype-prefix=$(PREFIX) --with-ft-prefix=$(PREFIX) --host=$(HOST)
 	cd $(SDL2TTF)/build$(PLATFORMDIR) && $(MAKE)
