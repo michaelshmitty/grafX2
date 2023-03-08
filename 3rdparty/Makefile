@@ -395,6 +395,7 @@ $(PREFIX)/lib/libSDL2_ttf.a:	$(SDL2TTF)/.ok
 	cd $(SDL2TTF)/build$(PLATFORMDIR) && $(MAKE)
 	cd $(SDL2TTF)/build$(PLATFORMDIR) && $(MAKE) install
 ifdef WIN32
+	$(OBJDUMP) -p $(PREFIX)/bin/SDL2_ttf.dll | grep 'DLL Name'
 	$(MKDIR) ../bin && $(CP) $(PREFIX)/bin/SDL2_ttf.dll ../bin && $(STRIP) ../bin/SDL2_ttf.dll
 endif
 	echo "$(SDL2TTF)" > ../doc/README-SDL2_ttf.txt
