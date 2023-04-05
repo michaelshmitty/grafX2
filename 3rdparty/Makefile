@@ -206,12 +206,14 @@ ifdef WIN32CROSS
 WIN32 = 1
 PLATFORMDIR = -win32
 CROSS_CC ?= $(shell which i686-w64-mingw32-gcc || which mingw32-gcc)
+CROSS_CXX ?= $(shell which i686-w64-mingw32-g++ || which mingw32-g++)
 CROSS_AR ?= $(shell which i686-w64-mingw32-ar || which mingw32-ar)
 CROSS_RANLIB ?= $(shell which i686-w64-mingw32-ranlib || which mingw32-ranlib)
 CROSS_STRIP ?= $(shell which i686-w64-mingw32-strip || which mingw32-strip)
 CROSS_OBJDUMP ?= $(shell which i686-w64-mingw32-objdump || which mingw32-objdump)
 CROSS_LDFLAGS += -static-libgcc
 CC = $(CROSS_CC)
+CXX = $(CROSS_CXX)
 AR = $(CROSS_AR)
 RANLIB = $(CROSS_RANLIB)
 STRIP = $(CROSS_STRIP)
@@ -391,7 +393,8 @@ $(PREFIX)/lib/libSDL2_ttf.a:	$(PREFIX)/lib/libSDL2main.a
 $(PREFIX)/lib/libSDL2_ttf.a:	$(SDL2TTF)/.ok
 	$(MKDIR) $(SDL2TTF)/build$(PLATFORMDIR)
 	cd $(SDL2TTF)/build$(PLATFORMDIR) && PKG_CONFIG_LIBDIR=$(PREFIX)/lib/pkgconfig \
-	  CC="$(CC) $(LDFLAGS)" CPPFLAGS=-I$(PREFIX)/include LDFLAGS="-L$(PREFIX)/lib $(LDFLAGS)" \
+	  CC="$(CC) $(LDFLAGS)" CXX="$(CXX) $(LDFLAGS)" \
+	  CPPFLAGS=-I$(PREFIX)/include LDFLAGS="-L$(PREFIX)/lib $(LDFLAGS)" \
 	  ../configure --prefix=$(PREFIX) --with-sdl-prefix=$(PREFIX) \
 	  --with-freetype-prefix=$(PREFIX) --with-ft-prefix=$(PREFIX) --host=$(HOST)
 	cd $(SDL2TTF)/build$(PLATFORMDIR) && $(MAKE)
