@@ -337,6 +337,7 @@ $(PREFIX)/lib/libSDL2main.a:	archives/$(SDL2DEVEL)
 	$(MKDIR) $(PREFIX)
 	cd $(SDL2) && $(MAKE) install-package arch=i686-w64-mingw32 prefix=$(PREFIX)
 	$(MKDIR) ../bin && $(CP) $(PREFIX)/bin/SDL2.dll ../bin && $(STRIP) ../bin/SDL2.dll
+	$(OBJDUMP) -p $(PREFIX)/bin/SDL2.dll | grep 'DLL Name'
 	echo "The following file:" > ../doc/README-SDL2.txt
 	echo "" >> ../doc/README-SDL2.txt
 	echo "	SDL2.dll" >> ../doc/README-SDL2.txt
@@ -372,6 +373,7 @@ $(PREFIX)/lib/libSDL2_image.a:	$(SDL2IMAGE)/.ok
 	cd $(SDL2IMAGE)/build$(PLATFORMDIR) && $(MAKE) && $(MAKE) install
 ifdef WIN32
 	$(MKDIR) ../bin && $(CP) $(PREFIX)/bin/SDL2_image.dll ../bin && $(STRIP) ../bin/SDL2_image.dll
+	$(OBJDUMP) -p $(PREFIX)/bin/SDL2_image.dll | grep 'DLL Name'
 endif
 	echo "$(SDL2IMAGE)" > ../doc/README-SDL2_image.txt
 	echo "" >> ../doc/README-SDL2_image.txt
