@@ -327,11 +327,7 @@ void Allow_drag_and_drop(int flag)
 
 void Define_icon(void)
 {
-  char * icon_path;
-
-  icon_path = Filepath_append_to_dir(Data_directory, "gfx2.png"); // 48x48
-  icon = Load_surface(icon_path, NULL);
-  free(icon_path);
+  icon = Load_surface("gfx2.png", Data_directory, NULL);  // 48x48
 }
 
 void Set_mouse_position(void)
