@@ -20,6 +20,7 @@
 
 ///@file 2gsformats.c
 /// Formats for the Apple II GS
+/// Support APF = Apple Preferred Format
 
 #include <stdio.h>
 #include <string.h>
