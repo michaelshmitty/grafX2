@@ -144,21 +144,29 @@ void Load_2GS(T_IO_Context * context)
 
   if (Config.Clear_palette)
     memset(context->Palette, 0, sizeof(T_Palette));
-  for (palindex = 0; palindex < palcount; palindex++)
+  for (palindex = 0; palindex < palcount && palindex < 16; palindex++)
   {
     if (!Load_2GS_Palette(context->Palette + (palindex * 16), file))
       goto error;
+  }
+  if (palindex < palcount)
+  {
+    GFX2_Log(GFX2_WARNING, "2GS %u palettes, skipping %u of them !\n",
+             (unsigned)palcount, (unsigned)(palcount - palindex));
+    fseek(file, 16*2*(palcount - palindex), SEEK_CUR);
   }
   if (!Read_word_le(file, &height))
     goto error;
   lineoffset = ftell(file);
   dataoffset = lineoffset + 4 * (long)height;
-  GFX2_Log(GFX2_DEBUG, " mode %02x  %ux%u %u palettes\n", mode, (unsigned)width, (unsigned)height, (unsigned)palcount);
+  GFX2_Log(GFX2_DEBUG, "2GS mode %02x %ux%u %u palette(s)\n", mode, (unsigned)width, (unsigned)height, (unsigned)palcount);
+  if (palcount > 16)
+    palcount = 16;
 
   // read other chunks before decoding the picture
-  GFX2_Log(GFX2_DEBUG, "file_size : %06lx, chunksize : %06lx, current offset : %06lx\n", file_size, chunksize, dataoffset);
+  GFX2_Log(GFX2_DEBUG, "2GS file_size : %06lx, chunksize : %06lx, current offset : %06lx\n", file_size, chunksize, dataoffset);
   offset = chunksize;
-  while (offset < (long)file_size)
+  while (chunksize > 0 && offset < (long)file_size)
   {
     char * p;
     byte c;
@@ -182,7 +190,9 @@ void Load_2GS(T_IO_Context * context)
           {
             fread(p, 1, len, file);
             p[len] = '\0';
-            GFX2_Log(GFX2_DEBUG, "%s\n", p);
+            GFX2_Log(GFX2_DEBUG, "  \"%s\"\n", p);
+            strncpy(context->Comment, p, COMMENT_SIZE);
+            context->Comment[COMMENT_SIZE] = '\0';
           }
         }
       }
@@ -203,6 +213,8 @@ void Load_2GS(T_IO_Context * context)
         {
           // all palettes are there...
           multipaloffset = ftell(file);
+          GFX2_Log(GFX2_DEBUG, "2GS MULTIPAL count %u offset %06lx\n",
+                   (unsigned)multipalcount, multipaloffset);
         }
       }
       free(p);
