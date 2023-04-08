@@ -31,6 +31,7 @@
 #include "io.h"
 #include "gfx2mem.h"
 #include "gfx2log.h"
+#include "packbytes.h"
 
 /**
  * Test for an Apple 2 GS picture file
@@ -319,4 +320,198 @@ void Load_2GS(T_IO_Context * context)
 error:
   File_error = 1;
   fclose(file);
+}
+
+/**
+ * Save a 16 entry Apple II GS palette to file
+ */
+static int Save_2GS_Palette_Entry(FILE * file, const T_Components * palette)
+{
+  word palentry = ((palette->R << 4) & 0xf00) | (palette->G & 0xf0) | (palette->B >> 4);
+  return Write_word_le(file, palentry);
+}
+
+struct line_data {
+  byte used_colors[256 / 8];  // bit map of used colors
+  word color_count;
+  word palette_index;
+};
+
+void Save_2GS(T_IO_Context * context)
+{
+  FILE *file;
+  word x, y, n;
+  byte * palette_mapping;
+  struct line_data * lines;
+  word palette_count = 0;
+  long linelist_offset;
+
+  File_error = 1;
+  palette_mapping = GFX2_malloc(16 * context->Height);
+  memset(palette_mapping, 0, 16 * context->Height);
+  lines = GFX2_malloc(sizeof(struct line_data) * context->Height);
+  // Parcours de chaque ligne pour construire la / les palette(s)
+  for (y = 0; y < context->Height; y++)
+  {
+    memset(lines + y, 0, sizeof(struct line_data));
+    for (x = 0; x < context->Width; x++)
+    {
+      byte c = Get_pixel(context, x, y);
+      if (!(lines[y].used_colors[c >> 3] & (1 << (c & 7))))
+      {
+        lines[y].used_colors[c >> 3] |= (1 << (c & 7));
+        lines[y].color_count++;
+      }
+    }
+    if (lines[y].color_count > 16)
+    {
+      GFX2_Log(GFX2_DEBUG, "%u colors used on line %u !\n", lines[y].color_count, (unsigned)y);
+      free(palette_mapping);
+      free(lines);
+      return;
+    }
+    lines[y].palette_index = 0xffff;  // pas de palette attribuée
+  }
+  // attribue les palettes en commençant par celles qui ont le plus de couleurs
+  for (n = 16; n > 0; n--)
+  {
+    for (y = 0 ; y < context->Height; y++)
+    {
+      if (lines[y].color_count == n)
+      {
+        word y2;
+        for (y2 = 0 ; y2 < context->Height; y2++)
+        {
+          if (lines[y2].palette_index != 0xffff)
+          {
+            // teste si toutes les couleurs de la ligne y sont aussi présentes dans la ligne y2
+            for (x = 0; x < 32; x++)
+            {
+              if (lines[y].used_colors[x] & ~lines[y2].used_colors[x])
+                break;
+            }
+            if (x == 32)
+            {
+              lines[y].palette_index = lines[y2].palette_index;
+              GFX2_Log(GFX2_DEBUG, "line#%u => pal#%u\n", y, lines[y].palette_index);
+              break;
+            }
+          }
+        }
+        // évolution : chercher parmi les palettes avec moins de 16 couleurs s'il y en a une qui convient
+        if (lines[y].palette_index == 0xffff)
+        {
+          word index;
+          lines[y].palette_index = palette_count;
+          for (x = 0, index = 0; x < 256; x++)
+            if (lines[y].used_colors[x >> 3] & (1 << (x & 7)))
+              palette_mapping[palette_count * 16 + index++] = x;
+          GFX2_Log(GFX2_DEBUG, "  line#%u => pal#%u (new, %ucolors)\n", (unsigned)y, (unsigned)palette_count, (unsigned)index);
+          palette_count++;
+        }
+      }
+    }
+  }
+  GFX2_Log(GFX2_DEBUG, "%u palette(s) (16 colors each).\n", (unsigned)palette_count);
+  // packing
+  file = Open_file_write(context);
+  if (file != NULL)
+  {
+    unsigned int i;
+    byte pal_mapping[256] = { 0 };
+    // Write Header
+    if(!Write_dword_le(file, 0))  // chunksize, to be written afterward
+      goto error;
+    if(!Write_byte(file, 4) || !Write_bytes(file, "MAIN", 4))
+      goto error;
+    if (!Write_word_le(file, 0/*mode*/) || !Write_word_le(file, context->Width))
+      goto error;
+    // Write Palettes
+    if (palette_count <= 16)
+    {
+      if (!Write_word_le(file, palette_count))
+        goto error;
+      for (i = 0; i < palette_count * 16; i++)
+      {
+        if (!Save_2GS_Palette_Entry(file, context->Palette + palette_mapping[i]))
+          goto error;
+      }
+    }
+    else
+    {
+      if (!Write_word_le(file, 1))
+        goto error;
+      for (i = 0; i < 16; i++)
+      {
+        if (!Save_2GS_Palette_Entry(file, context->Palette + palette_mapping[i]))
+          goto error;
+      }
+    }
+    GFX2_Log(GFX2_DEBUG, "%d 0x%x\n", (int)ftell(file), (int)ftell(file));
+    // Write lines
+    if (!Write_word_le(file, context->Height))
+      goto error;
+    linelist_offset = ftell(file);
+    for (y = 0; y < context->Height; y++)
+    {
+      if (!Write_word_le(file, 0/*linebytes*/) || !Write_word_le(file, palette_count <= 16 ? lines[y].palette_index : 0))
+        goto error;
+    }
+    GFX2_Log(GFX2_DEBUG, "  %d 0x%x\n", (int)ftell(file), (int)ftell(file));
+    // Write Pixels
+    for (y = 0; y < context->Height; y++)
+    {
+      byte b;
+      T_PackBytes_data data;
+      unsigned packed_len;
+      for (i = 0; i < 16; i++)
+      {
+        pal_mapping[palette_mapping[16 * lines[y].palette_index + i]] = i;
+      }
+      PackBytes_pack_init(&data, file);
+      for (x = 0; x < context->Width; x += 2)
+      {
+        b = pal_mapping[Get_pixel(context, x, y)] << 4;
+        b |= pal_mapping[Get_pixel(context, x + 1, y)];
+        if (PackBytes_pack_add(&data, b) < 0)
+          goto error;
+      }
+      packed_len = PackBytes_pack_flush(&data);
+      //fseek(file, 15 + 32 * palette_count + 2 + y * 4, SEEK_SET);
+      fseek(file, linelist_offset + y * 4, SEEK_SET);
+      if (!Write_word_le(file, packed_len))
+        goto error;
+      fseek(file, 0, SEEK_END);
+    }
+    {
+      long chunk_size = ftell(file);
+      fseek(file, 0, SEEK_SET);
+      if (!Write_dword_le(file, (dword)chunk_size))
+        goto error;
+      fseek(file, 0, SEEK_END);
+    }
+    // Comment => NOTE
+    if (palette_count > 16)
+    {
+      if (!Write_dword_le(file, context->Height * 32 + 9 + 2 + 4))
+        goto error;
+      if (!Write_bytes(file, "\x08MULTIPAL", 9))
+        goto error;
+      if (!Write_word_le(file, context->Height))
+        goto error;
+      for (y = 0; y < (unsigned)context->Height; y++)
+      {
+        for (i = 0; i < 16; i++)
+        {
+          if (!Save_2GS_Palette_Entry(file, context->Palette + palette_mapping[lines[y].palette_index * 16 + i]))
+            goto error;
+        }
+      }
+    }
+    File_error = 0;
+error:
+    fclose(file);
+  }
+  free(lines);
+  free(palette_mapping);
 }
