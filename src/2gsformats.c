@@ -342,6 +342,7 @@ void Save_2GS(T_IO_Context * context)
   FILE *file;
   word x, y, n;
   byte * palette_mapping;
+  byte * palette_used_colors;
   struct line_data * lines;
   word palette_count = 0;
   long linelist_offset;
@@ -350,6 +351,7 @@ void Save_2GS(T_IO_Context * context)
   palette_mapping = GFX2_malloc(16 * context->Height);
   memset(palette_mapping, 0, 16 * context->Height);
   lines = GFX2_malloc(sizeof(struct line_data) * context->Height);
+  palette_used_colors = GFX2_malloc((256 / 8) * context->Height);
   // Parcours de chaque ligne pour construire la / les palette(s)
   for (y = 0; y < context->Height; y++)
   {
@@ -366,6 +368,7 @@ void Save_2GS(T_IO_Context * context)
     if (lines[y].color_count > 16)
     {
       GFX2_Log(GFX2_DEBUG, "%u colors used on line %u !\n", lines[y].color_count, (unsigned)y);
+      free(palette_used_colors);
       free(palette_mapping);
       free(lines);
       return;
@@ -379,23 +382,19 @@ void Save_2GS(T_IO_Context * context)
     {
       if (lines[y].color_count == n)
       {
-        word y2;
-        for (y2 = 0 ; y2 < context->Height; y2++)
+        word i;
+        for (i = 0; i < palette_count; i++)
         {
-          if (lines[y2].palette_index != 0xffff)
+          for (x = 0; x < 32; x++)
           {
-            // teste si toutes les couleurs de la ligne y sont aussi présentes dans la ligne y2
-            for (x = 0; x < 32; x++)
-            {
-              if (lines[y].used_colors[x] & ~lines[y2].used_colors[x])
-                break;
-            }
-            if (x == 32)
-            {
-              lines[y].palette_index = lines[y2].palette_index;
-              GFX2_Log(GFX2_DEBUG, "line#%u => pal#%u\n", y, lines[y].palette_index);
+            if (lines[y].used_colors[x] & ~palette_used_colors[i * (256 / 8) + x])
               break;
-            }
+          }
+          if (x == 32)
+          {
+            lines[y].palette_index = i;
+            GFX2_Log(GFX2_DEBUG, "line#%u => pal#%u\n", y, lines[y].palette_index);
+            break;
           }
         }
         // évolution : chercher parmi les palettes avec moins de 16 couleurs s'il y en a une qui convient
@@ -406,6 +405,7 @@ void Save_2GS(T_IO_Context * context)
           for (x = 0, index = 0; x < 256; x++)
             if (lines[y].used_colors[x >> 3] & (1 << (x & 7)))
               palette_mapping[palette_count * 16 + index++] = x;
+          memcpy(palette_used_colors + palette_count * (256 / 8), lines[y].used_colors, 256 / 8);
           GFX2_Log(GFX2_DEBUG, "  line#%u => pal#%u (new, %ucolors)\n", (unsigned)y, (unsigned)palette_count, (unsigned)index);
           palette_count++;
         }
@@ -512,6 +512,7 @@ void Save_2GS(T_IO_Context * context)
 error:
     fclose(file);
   }
+  free(palette_used_colors);
   free(lines);
   free(palette_mapping);
 }
