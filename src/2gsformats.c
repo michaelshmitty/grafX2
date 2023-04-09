@@ -393,21 +393,55 @@ void Save_2GS(T_IO_Context * context)
           if (x == 32)
           {
             lines[y].palette_index = i;
-            GFX2_Log(GFX2_DEBUG, "line#%u => pal#%u\n", y, lines[y].palette_index);
+            GFX2_Log(GFX2_DEBUG, "  line#%u => pal#%u\n", y, lines[y].palette_index);
             break;
           }
         }
         // évolution : chercher parmi les palettes avec moins de 16 couleurs s'il y en a une qui convient
         if (lines[y].palette_index == 0xffff)
         {
-          word index;
-          lines[y].palette_index = palette_count;
-          for (x = 0, index = 0; x < 256; x++)
-            if (lines[y].used_colors[x >> 3] & (1 << (x & 7)))
-              palette_mapping[palette_count * 16 + index++] = x;
-          memcpy(palette_used_colors + palette_count * (256 / 8), lines[y].used_colors, 256 / 8);
-          GFX2_Log(GFX2_DEBUG, "  line#%u => pal#%u (new, %ucolors)\n", (unsigned)y, (unsigned)palette_count, (unsigned)index);
-          palette_count++;
+          for (i = 0; i < palette_count; i++)
+          {
+            word freeslots = 0;
+            while (freeslots <= 15 && palette_mapping[i * 16 + 15 - freeslots] == 0)
+              freeslots++;
+            if (freeslots > 0)
+            {
+              word to_add_count = 0;
+              byte to_add[16];
+              for (x = 0; x < 256; x++)
+                if ((lines[y].used_colors[x >> 3] & ~palette_used_colors[i * (256 / 8) + (x >> 3)]) & (1 << (x & 7)))
+                {
+                  // color used on the line but not in the palette
+                  to_add[to_add_count++] = (byte)x;
+                }
+              if (to_add_count <= freeslots)
+              {
+                GFX2_Log(GFX2_DEBUG, "  add %u colors from line#%u to pal#%u\n",
+                         (unsigned)to_add_count, (unsigned)y, (unsigned)i);
+                lines[y].palette_index = i;
+                for (x = 0; x < to_add_count; x++)
+                {
+                  // add the color to the palette
+                  palette_used_colors[i * (256 / 8) + (to_add[x] >> 3)] |= (1 << (to_add[x] & 7));
+                  palette_mapping[i * 16 + 16 - freeslots + x] = to_add[x];
+                }
+                break;
+              }
+            }
+          }
+          if (lines[y].palette_index == 0xffff)
+          {
+            word index;
+            lines[y].palette_index = palette_count;
+            for (x = 0, index = 0; x < 256; x++)
+              if (lines[y].used_colors[x >> 3] & (1 << (x & 7)))
+                palette_mapping[palette_count * 16 + index++] = x;
+            memcpy(palette_used_colors + palette_count * (256 / 8), lines[y].used_colors, 256 / 8);
+            GFX2_Log(GFX2_DEBUG, "  line#%u => pal#%u (new, %ucolors)\n",
+                     (unsigned)y, (unsigned)palette_count, (unsigned)index);
+            palette_count++;
+          }
         }
       }
     }
