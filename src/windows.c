@@ -1100,6 +1100,8 @@ void Print_filename(void)
   // Partial copy of the name
   if (Main.backups->Pages->Filename_unicode != NULL)
     Unicode_strlcpy(display_string, Main.backups->Pages->Filename_unicode, 256);
+  else if (Main.backups->Pages->Filename == NULL)
+    display_string[0] = 0;
   else
   {
 #ifdef ENABLE_FILENAMES_ICONV

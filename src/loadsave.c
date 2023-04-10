@@ -2232,8 +2232,8 @@ void Rotate_safety_backups(void)
     Init_context_backup_image(&context, file_name, Config_directory);
     context.Format=FORMAT_GIF;
     // Provide original file data, to store as a GIF Application Extension
-    context.Original_file_name = strdup(Main.backups->Pages->Filename);
-    context.Original_file_directory = strdup(Main.backups->Pages->File_directory);
+    context.Original_file_name = Main.backups->Pages->Filename != NULL ? strdup(Main.backups->Pages->Filename) : NULL;
+    context.Original_file_directory = Main.backups->Pages->File_directory != NULL ? strdup(Main.backups->Pages->File_directory) : NULL;
 
     Save_image(&context);
     Destroy_context(&context);
