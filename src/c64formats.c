@@ -500,14 +500,16 @@ static void C64_unpack(byte * unpacked, const byte * buffer, long input_size, by
       { // ESCAPE, VALUE, COUNT
         value = *buffer++;
         count = *buffer;
+        if (count == 0)
+          break;
       }
       else
       { // ESCAPE, COUNT, VALUE
         count = *buffer++;
+        if (count == 0)
+          break;
         value = *buffer;
       }
-      if (count == 0)
-        break;
       while (count-- > 0)
         *unpacked++ = value;
     }
