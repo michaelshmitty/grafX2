@@ -627,10 +627,11 @@ static long C64_unpack_doodle(byte ** file_buffer, long file_size)
 void Load_C64(T_IO_Context * context)
 {
     FILE* file;
-    long file_size;
+    long file_size, packed_size;
     byte hasLoadAddr=0;
     word load_addr;
     enum c64_format loadFormat = F_invalid;
+    const char * fmt_name = "";
 
     byte *file_buffer;
     byte *bitmap, *screen_ram, *color_ram=NULL, *background=NULL; // Only pointers to existing data
@@ -664,13 +665,23 @@ void Load_C64(T_IO_Context * context)
         // get load address (valid only if hasLoadAddr = 1)
         load_addr = file_buffer[0] | (file_buffer[1] << 8);
 
+        packed_size = file_size;
         // Unpack if needed
         if (memcmp(file_buffer + 2, "DRAZPAINT", 9) == 0)
+        {
           file_size = C64_unpack_draz(&file_buffer, file_size);
+          fmt_name = "Draz Paint";
+        }
         else if(load_addr == 0x4000 && file_buffer[file_size-2] == 0xC2 && file_buffer[file_size-1] == 0)
+        {
           file_size = C64_unpack_amica(&file_buffer, file_size);
+          fmt_name = "Amica";
+        }
         else if (file_size < 8000 && (load_addr == 0x6000 || load_addr == 0x5c00))
+        {
           file_size = C64_unpack_doodle(&file_buffer, file_size);
+          fmt_name = "Doodle";
+        }
 
         switch (file_size)
         {
@@ -953,12 +964,14 @@ void Load_C64(T_IO_Context * context)
         }
 
         // Write detailed format in comment
-        if (hasLoadAddr)
+        if (packed_size != file_size)
+          snprintf(context->Comment, COMMENT_SIZE+1, "%s, %s, load $%4.4X", c64_format_names[loadFormat], fmt_name, load_addr);
+        else if (hasLoadAddr)
           snprintf(context->Comment,COMMENT_SIZE+1,"%s, load at $%4.4X",c64_format_names[loadFormat],load_addr);
         else
           snprintf(context->Comment,COMMENT_SIZE+1,"%s, no addr",c64_format_names[loadFormat]);
 
-        Pre_load(context, width, height, file_size, FORMAT_C64, context->Ratio, (loadFormat == F_bitmap) ? 1 : 4); // Do this as soon as you can
+        Pre_load(context, width, height, packed_size, FORMAT_C64, context->Ratio, (loadFormat == F_bitmap) ? 1 : 4); // Do this as soon as you can
 
         if (Config.Clear_palette)
           memset(context->Palette,0, sizeof(T_Palette));
