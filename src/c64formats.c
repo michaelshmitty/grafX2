@@ -146,6 +146,8 @@ void Test_C64(T_IO_Context * context, FILE * file)
       // $18DC => Micro Illustrator (uncompressed)
     case 10050:
       // $1800 => Picasso64
+    case 10051:
+      // $5800 => DrazPaint
     case 10218:
       // $3C00 => Image System (.ism)
     case 10219:
@@ -777,7 +779,7 @@ void Load_C64(T_IO_Context * context)
                 break;
 
             case 10049: // unpacked DrazPaint
-                hasLoadAddr=1;
+                hasLoadAddr=0;
                 loadFormat=F_multi;
                 color_ram=file_buffer; // length: 1000 + (padding 24)
                 screen_ram=file_buffer+1024; // length: 1000 + (padding 24)
@@ -792,6 +794,15 @@ void Load_C64(T_IO_Context * context)
                 screen_ram=file_buffer+1024+2; // length: 1000 + (padding 24)
                 bitmap=file_buffer+1024*2+2; // length: 8000
                 background=file_buffer+1024*2+2-1; // only 1
+                break;
+
+            case 10051: // unpacked DrazPaint + loadaddr
+                hasLoadAddr=1;
+                loadFormat=F_multi;
+                color_ram=file_buffer+2; // length: 1000 + (padding 24)
+                screen_ram=file_buffer+1024+2; // length: 1000 + (padding 24)
+                bitmap=file_buffer+1024*2+2; // length: 8000
+                background=file_buffer+8000+1024*2+2;
                 break;
 
             case 10218: // Image System
