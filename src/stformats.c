@@ -41,6 +41,10 @@
  * - low res : 320x200 16 colors
  * - med res : 640x200 4 colors
  * - high res : 640x400 monochrome
+ * In addition, the TT has 3 more modes :
+ * - TT Low : 320x480 256 colors
+ * - TT Medium : 640x480 16 colors
+ * - TT High : 1280x960 monochrome
  *
  * Supported formats :
  * - PI1 : Degas
@@ -53,6 +57,36 @@
 //////////////////////////////////// PI1 ////////////////////////////////////
 
 //// DECODAGE d'une partie d'IMAGE ////
+
+/**
+ * 8bpp Planar to chunky conversion.
+ *
+ * Reads 16 pixels from 8 words with TT low resolution layout.
+ * @param src 16 bytes Atari TT screen memory
+ * @param dest 16 bytes buffer
+ */
+static void PI4_16b_to_16p(const byte * src, byte * dest)
+{
+  int i, j;
+  word byte_mask;
+  word w[8];
+
+  for (i = 0; i < 8; i++)
+    w[i] = (((word)src[i*2]) << 8) | src[i*2+1];
+
+  byte_mask = 0x8000;
+  for (j = 0; j < 16; j++)
+  {
+    byte pixel = 0;
+    for (i = 0; i < 8; i++)
+    {
+      if (byte_mask & w[i])
+        pixel |= (1 << i);
+    }
+    dest[j] = pixel;
+    byte_mask >>= 1;
+  }
+}
 
 /**
  * 4bpp Planar to chunky conversion.
@@ -300,6 +334,16 @@ void Test_PI1(T_IO_Context * context, FILE * file)
     if (resolution < 3)
       File_error=0;
   }
+  else if (size == 154114)
+  {
+    if (resolution == 7)  // TT-Low
+      File_error=0;
+  }
+  else if (size == 153634)
+  {
+    if (resolution == 4)  // TT-Medium
+      File_error=0;
+  }
 }
 
 
@@ -311,10 +355,11 @@ void Load_PI1(T_IO_Context * context)
   word width, height;
   FILE *file;
   word x_pos,y_pos;
-  byte buffer[160];
+  byte buffer[512];
   byte * ptr;
-  byte pixels[320];
+  byte pixels[16];
   byte bpp;
+  size_t bytes_per_line = 160;
 
   File_error = 1;
   file = Open_file_read(context);
@@ -325,14 +370,20 @@ void Load_PI1(T_IO_Context * context)
     return;
   GFX2_Log(GFX2_DEBUG, "Degas UnCompressed. Resolution = %04x\n", resolution);
   // Read palette
-  if (!Read_bytes(file, buffer, 32))
+  if (!Read_bytes(file, buffer, (resolution == 7) ? 512 : 32))
   {
     fclose(file);
     return;
   }
   if (Config.Clear_palette)
-    memset(context->Palette,0,sizeof(T_Palette));
+    memset(context->Palette, 0, sizeof(T_Palette));
   PI1_decode_palette(buffer, context->Palette);
+  if (resolution == 7)
+  {
+    int i;
+    for (i = 1; i < 16; i++)
+      PI1_decode_palette(buffer + i * 32, context->Palette + i * 16);
+  }
 
   switch (resolution)
   {
@@ -351,6 +402,20 @@ void Load_PI1(T_IO_Context * context)
       width = 640;
       height = 400;
       bpp = 1;
+      bytes_per_line = 80;
+      break;
+    case 4:  // TT Medium
+      width = 640;
+      height = 480;
+      bpp = 4;
+      bytes_per_line = 320;
+      break;
+    case 7:  // TT Low
+      width = 320;
+      height = 480;
+      bpp = 8;
+      ratio = PIXEL_WIDE;
+      bytes_per_line = 320;
       break;
     default:
       fclose(file);
@@ -360,7 +425,7 @@ void Load_PI1(T_IO_Context * context)
 
   for (y_pos=0;y_pos<height;y_pos++)
   {
-    if (!Read_bytes(file, buffer, (resolution == 2) ? 80 : 160))
+    if (!Read_bytes(file, buffer, bytes_per_line))
     {
       fclose(file);
       return;
@@ -372,6 +437,7 @@ void Load_PI1(T_IO_Context * context)
       switch (resolution)
       {
         case 0:
+        case 4:
           PI1_8b_to_16p(ptr, pixels);
           ptr += 8;
           break;
@@ -385,6 +451,10 @@ void Load_PI1(T_IO_Context * context)
           for (; i < 16; i++)
             pixels[i] = (ptr[1] & (0x80 >> (i - 8))) ? 1 : 0;
           ptr += 2;
+          break;
+        case 7:
+          PI4_16b_to_16p(ptr, pixels);
+          ptr += 16;
       }
       for (i = 0; i < 16; i++)
         Set_pixel(context, x_pos++, y_pos, pixels[i]);
