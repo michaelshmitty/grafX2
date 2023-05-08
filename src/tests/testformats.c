@@ -75,6 +75,7 @@ static const struct {
   TESTFMTL(FLI, "autodesk_FLI_FLC/2noppaa.fli")
   TESTFMT(BMP, "bmp/test8.bmp")
   TESTFMTL(ICO, "ico/punzip.ico")               // Format with limitations
+  TESTFMTF(C64, "c64/multicolor/AIRPORT.AMI", FLAG_C64)
   TESTFMTF(C64, "c64/multicolor/ARKANOID.KOA", FLAG_C64)
   TESTFMTF(PRG, "c64/multicolor/speedball2_loading_jonegg.prg", FLAG_C64)
   TESTFMTL(GPX, "c64/pixcen/Cyberbird.gpx")
