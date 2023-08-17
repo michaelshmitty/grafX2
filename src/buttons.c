@@ -165,7 +165,7 @@ void Button_Message_initial(void)
   Print_in_window(130-4*26,112,"Copyright (c) 1996-2001 by",MC_Dark,MC_Light);
   Print_in_window(130-4*13,122,"Sunset Design",MC_Black,MC_Light);
   //Print_in_window( 120-4*13,128,"(placeholder)",MC_Dark,MC_Light);
-  Print_in_window(130-4*16,136,"http://grafx2.tk",MC_Dark,MC_Light);
+  Print_in_window(130-4*16,136,"http://grafx2.eu",MC_Dark,MC_Light);
 
   Window_set_normal_button(56, 151, 71, 14, "Anim", 1, (Main.backups->Pages->Image_mode != IMAGE_MODE_ANIMATION), KEY_a);
   Window_set_normal_button(133, 151, 71, 14, "Layers", 1, (Main.backups->Pages->Image_mode != IMAGE_MODE_LAYERED), KEY_l);

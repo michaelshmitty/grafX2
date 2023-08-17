@@ -33,7 +33,7 @@
  * It can be built using SDL 1.x or SDL 2.x libraries (see https://www.libsdl.org/)
  * or Xlib or Win32 API.
  *
- * Web for the project users is http://grafx2.tk/.
+ * Web for the project users is http://grafx2.eu/.
  *
  * Developpers are welcome to contribute :
  * the code is hosted on gitlab https://gitlab.com/GrafX2/grafX2

@@ -64,7 +64,7 @@ fi
 echo "</ul>" >> ${OUTFILE}
 echo "<ul>" >> ${OUTFILE}
 
-echo "<li><a href=\"http://grafx2.tk/\">Home page</a></li>" >> ${OUTFILE}
+echo "<li><a href=\"http://grafx2.eu/\">Home page</a></li>" >> ${OUTFILE}
 echo "<li>Source repository : <a href=\"${CI_PROJECT_URL}\">${CI_PROJECT_URL}</a></li>" >> ${OUTFILE}
 echo "<li>Bug tracker : <a href=\"https://pulkomandy.tk/projects/GrafX2/query\">https://pulkomandy.tk/projects/GrafX2/query</a></li>" >> ${OUTFILE}
 echo "<li>Open Hub : <a href=\"https://www.openhub.net/p/grafx2\">https://www.openhub.net/p/grafx2</a></li>" >> ${OUTFILE}
