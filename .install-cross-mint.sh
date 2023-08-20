@@ -10,8 +10,12 @@ fi
 DISTRIB=$(awk 'NR==1{print $0}' /etc/issue)
 echo "DISTRIB=$DISTRIB"
 
-
-cat <<EOF | $SUDO apt-key add -
+# from the apt-key(8) man page :
+# add filename (deprecated)
+# Note: Instead of using this command a keyring should be placed directly
+#       in the /etc/apt/trusted.gpg.d/ directory with a descriptive name
+#       and either "gpg" or "asc" as file extension.
+cat <<EOF | $SUDO gpg --dearmour -o /etc/apt/trusted.gpg.d/vincent.riviere.gpg
 -----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: GnuPG v1.4.10 (GNU/Linux)
 
