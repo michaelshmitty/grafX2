@@ -661,6 +661,10 @@ int Save_INI(const T_Config * conf)
   if ((return_code=Save_INI_set_values (old_file,new_file,buffer,"Merge_movement",1,values,0)))
     goto Erreur_Retour;
 
+  values[0]=(conf->Mouse_motion_debounce);
+  if ((return_code=Save_INI_set_values (old_file,new_file,buffer,"Mouse_motion_debounce",1,values,0)))
+    goto Erreur_Retour;
+
   values[0]=(conf->Palette_cells_X);
   if ((return_code=Save_INI_set_values (old_file,new_file,buffer,"Palette_cells_X",1,values,0)))
     goto Erreur_Retour;

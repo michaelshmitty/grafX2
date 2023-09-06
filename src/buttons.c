@@ -973,6 +973,7 @@ void Button_Settings(int btn)
   {"  on left click:",1,&(selected_config.Delay_left_click_on_slider),1,255,4,NULL},
   {"  on right click:",1,&(selected_config.Delay_right_click_on_slider),1,255,4,NULL},
   {"Merge movement:",1,&(selected_config.Mouse_merge_movement),0,100,4,NULL},
+  {"Motion debounce:",1,&(selected_config.Mouse_motion_debounce),0,200,4,NULL},
   {"Double click speed:",2,&(selected_config.Double_click_speed),1,1999,4,NULL},
   {"Double key speed:",2,&(selected_config.Double_key_speed),1,1999,4,NULL},
   //{"Mouse speed (fullscreen)",0,NULL,0,0,0,NULL},
@@ -980,7 +981,6 @@ void Button_Settings(int btn)
   //{"  vertically:",1,&(selected_config.Mouse_sensitivity_index_y),1,4,0,Lookup_MouseSpeed},
   {"Key to swap buttons:",2,&(selected_config.Swap_buttons),0,0,0,Lookup_SwapButtons},
   {"Virtual keyboard",1,&(selected_config.Use_virtual_keyboard),0,2,0,Lookup_VirtualKeyboard},
-  {"",0,NULL,0,0,0,NULL},
   {"",0,NULL,0,0,0,NULL},
 
   {"          --- Editing  ---",0,NULL,0,0,0,NULL},

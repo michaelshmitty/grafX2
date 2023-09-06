@@ -802,6 +802,15 @@ int Load_INI(T_Config * conf)
     conf->Mouse_merge_movement=values[0];
   }
 
+  conf->Mouse_motion_debounce=0;
+  // Optional: debounce mouse motion handling by a given number of milliseconds
+  if (!Load_INI_get_values( file, buffer, "Mouse_motion_debounce",1,values))
+  {
+    if (values[0] < 0 || values[0] > 1000)
+      goto Erreur_ERREUR_INI_CORROMPU;
+    conf->Mouse_motion_debounce=values[0];
+  }
+
   conf->Palette_cells_X=16;
   // Optionnel, nombre de colonnes dans la palette (>98.0%)
   if (!Load_INI_get_values (file,buffer,"Palette_cells_X",1,values))

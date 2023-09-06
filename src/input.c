@@ -1495,6 +1495,12 @@ static void Mouse_Emulation()
   }
 }
 
+#ifdef USE_SDL2
+// We can throttle mouse motion handling to avoid jerky / lagging mouse movement
+// See https://pulkomandy.tk/projects/GrafX2/ticket/136
+static Uint32 next_mouse_motion_ticks = 0;
+#endif
+
 // Main input handling function
 
 int Get_input(int sleep_time)
@@ -1643,7 +1649,20 @@ int Get_input(int sleep_time)
               break;
 
           case SDL_MOUSEMOTION:
+#ifdef USE_SDL2
+              if (Config.Mouse_motion_debounce)
+              {
+                Uint32 ticks = SDL_GetTicks();
+                if (SDL_TICKS_PASSED(ticks, next_mouse_motion_ticks)) {
+                    user_feedback_required = Handle_mouse_move(&event.motion);
+                    next_mouse_motion_ticks = ticks + Config.Mouse_motion_debounce;
+                }
+              }
+              else
+                user_feedback_required = Handle_mouse_move(&event.motion);
+#else
               user_feedback_required = Handle_mouse_move(&event.motion);
+#endif
               break;
 
           case SDL_MOUSEBUTTONDOWN:

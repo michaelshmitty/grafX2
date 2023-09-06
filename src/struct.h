@@ -339,6 +339,7 @@ typedef struct
   byte Mouse_sensitivity_index_x;        ///< Mouse sensitivity in X axis
   byte Mouse_sensitivity_index_y;        ///< Mouse sensitivity in Y axis
   byte Mouse_merge_movement;             ///< Number of SDL mouse events that are merged into a single change of mouse coordinates.
+  byte Mouse_motion_debounce;            ///< Number of milliseconds to "debounce" mouse motion handling
   byte Delay_left_click_on_slider;       ///< Delay (in 1/100s) between two activations of a repeatable button when you hold left-click.
   byte Delay_right_click_on_slider;      ///< Delay (in 1/100s) between two activations of a repeatable button when you hold left-click.
   long Timer_delay;                      ///< Delay (in 1/55s) before showing a preview in a fileselector.
