@@ -233,9 +233,10 @@ static const char * Export_help_table(FILE * f, unsigned int page)
 
     if (table[index].Line_type == 'K')
     {
-      char keytmp[90];
+      char keytmp[90], linetmp[180];
       snprintf(keytmp, sizeof(keytmp), "<em>%s</em>", Keyboard_default_shortcut(table[index].Line_parameter));
-      fprintf(f, table[index].Text, keytmp);
+      snprintf(linetmp, sizeof(linetmp), table[index].Text, keytmp);
+      fputs_utf8(linetmp, (size_t)-1, f);
     }
     else
     {
