@@ -853,9 +853,19 @@ word Keysym_to_ANSI(SDL_keysym keysym)
 #elif defined(USE_SDL2)
 word Keysym_to_ANSI(SDL_Keysym keysym)
 {
-  if (keysym.sym < 128)
-    return (word)keysym.sym;
-  return K2K(keysym.sym);
+  if (keysym.sym < 128) {
+    if (keysym.mod & KMOD_SHIFT && keysym.sym >= SDLK_a && keysym.sym <= SDLK_z)
+      return (word)(keysym.sym - 32);  // uppercase letter
+    else
+      return (word)keysym.sym;
+  } else {
+    if (keysym.sym >= SDLK_KP_1 && keysym.sym <= SDLK_KP_9)
+      return (word)(keysym.sym - SDLK_KP_1 + '1');
+    else if (keysym.sym == SDLK_KP_0)
+      return (word)'0';
+    else
+      return K2K(keysym.sym);
+  }
 }
 
 word Key_for_scancode(word scancode)
