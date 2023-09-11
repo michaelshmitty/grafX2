@@ -1562,7 +1562,7 @@ T_Key_config ConfigKey[NB_SHORTCUTS] = {
   true,
   KEY_INSERT|GFX2_MOD_ALT, // Alt + Insert
   0},
-  {209,
+  {211,
   "Duplicate layer",
   "Adds a new layer on top of the",
   "active one. The new layer is a copy",
