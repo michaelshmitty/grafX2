@@ -2582,7 +2582,7 @@ void Draw_grad_rectangle(short rax,short ray,short rbx,short rby,short vax,short
       Gradient_total_range = abs(vby - vay);
       for(y_pos=ray;y_pos<=rby;y_pos++)
         for(x_pos=rax;x_pos<=rbx;x_pos++)
-          Gradient_function(abs(vby - y_pos),x_pos,y_pos);
+          Gradient_function(abs(vby - y_pos),x_pos,ray - y_pos + rby);
 
     }
     else
