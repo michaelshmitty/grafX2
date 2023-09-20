@@ -809,7 +809,8 @@ static int Handle_mouse_move(SDL_MouseMotionEvent * event)
 {
   //GFX2_Log(GFX2_DEBUG, "mouse motion (%+d,%+d)\n", event->xrel, event->yrel);
 
-  return Move_cursor_with_constraints(event->x / Pixel_width, event->y / Pixel_height);
+  return Move_cursor_with_constraints(event->x / Pixel_width / render_scale,
+                                      event->y / Pixel_height / render_scale);
 }
 
 static int Handle_mouse_click(SDL_MouseButtonEvent * event)
@@ -1585,10 +1586,10 @@ int Get_input(int sleep_time)
                   Resize_width = event.window.data1;
                   Resize_height = event.window.data2;
                   // forbid window size < 320x200
-                  if (Resize_width < 320)
-                    Resize_width = 320;
-                  if (Resize_height < 200)
-                    Resize_height = 200;
+                  if (Resize_width < 320*render_scale)
+                    Resize_width = 320*render_scale;
+                  if (Resize_height < 200*render_scale)
+                    Resize_height = 200*render_scale;
                   if (Resize_width != event.window.data1 || Resize_height != event.window.data2)
                     SDL_SetWindowSize(SDL_GetWindowFromID(event.window.windowID), Resize_width, Resize_height);
                   break;

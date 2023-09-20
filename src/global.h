@@ -282,6 +282,12 @@ GFX2_GLOBAL int Pixel_width;
 /// Current height of pixels, according to ::Pixel_ratio
 GFX2_GLOBAL int Pixel_height;
 
+#ifdef USE_SDL2
+// Scale up the entire window contents by this factor
+GFX2_GLOBAL int render_scale;
+#else
+#define render_scale 1
+#endif
 
 /// Current image data
 GFX2_GLOBAL T_Document Main;

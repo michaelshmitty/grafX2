@@ -117,6 +117,8 @@ void Screen_FillRect(int x, int y, int w, int h, byte color)
   SDL_FillRect(Screen_SDL,&rectangle,color);
 }
 
+static SDL_Rect render_dstrect;
+
 /// Sets the new screen/window dimensions.
 void GFX2_Set_mode(int *width, int *height, int fullscreen)
 {
@@ -154,6 +156,7 @@ void GFX2_Set_mode(int *width, int *height, int fullscreen)
                                   *width, *height, (fullscreen?SDL_WINDOW_FULLSCREEN:SDL_WINDOW_RESIZABLE));
     SDL_SetWindowIcon(Window_SDL, icon);
     Renderer_SDL = SDL_CreateRenderer(Window_SDL, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    SDL_SetRenderDrawColor(Renderer_SDL, 0, 0, 0, SDL_ALPHA_OPAQUE);
   }
   else
   {
@@ -163,10 +166,16 @@ void GFX2_Set_mode(int *width, int *height, int fullscreen)
   //SDL_GetWindowSize(Window_SDL, width, height);
   if (Texture_SDL != NULL)
     SDL_DestroyTexture(Texture_SDL);
-  Texture_SDL = SDL_CreateTexture(Renderer_SDL, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, *width, *height);
+  Texture_SDL = SDL_CreateTexture(Renderer_SDL, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
+                                  Screen_width * Pixel_width, Screen_height * Pixel_height);
+  SDL_SetTextureScaleMode(Texture_SDL, SDL_ScaleModeNearest);
+  render_dstrect.x = 0;
+  render_dstrect.y = 0;
+  render_dstrect.w = Screen_width * Pixel_width * render_scale;
+  render_dstrect.h = Screen_height * Pixel_height * render_scale;
   if (Screen_SDL != NULL)
     SDL_FreeSurface(Screen_SDL);
-  Screen_SDL = SDL_CreateRGBSurface(0, *width, *height, 8, 0, 0, 0, 0);
+  Screen_SDL = SDL_CreateRGBSurface(0, Screen_width * Pixel_width, Screen_height * Pixel_height, 8, 0, 0, 0, 0);
 #endif
 
   // Trick borrowed to Barrage (http://www.mail-archive.com/debian-bugs-dist@lists.debian.org/msg737265.html) :
@@ -227,12 +236,12 @@ static void GFX2_UpdateRect(int x, int y, int width, int height)
      memcpy(pixels + line * pitch, (const byte *)RGBcopy->pixels + source_rect.x * 4 + (source_rect.y+line)* RGBcopy->pitch, source_rect.w * 4 );
   }
   SDL_UnlockTexture(Texture_SDL);
-  //SDL_RenderCopy(Renderer_SDL, Texture_SDL, &source_rect, &source_rect);
 }
 
 void GFX2_UpdateScreen(void)
 {
-  SDL_RenderCopy(Renderer_SDL, Texture_SDL, NULL, NULL);
+  SDL_RenderClear(Renderer_SDL);
+  SDL_RenderCopy(Renderer_SDL, Texture_SDL, NULL, &render_dstrect);
   SDL_RenderPresent(Renderer_SDL);
 }
 #endif
@@ -791,7 +800,7 @@ void Set_mouse_position(void)
 #if defined(USE_SDL)
   SDL_WarpMouse(Mouse_X*Pixel_width, Mouse_Y*Pixel_height);
 #elif defined(USE_SDL2)
-  SDL_WarpMouseInWindow(NULL, Mouse_X*Pixel_width, Mouse_Y*Pixel_height);
+  SDL_WarpMouseInWindow(NULL, Mouse_X*Pixel_width*render_scale, Mouse_Y*Pixel_height*render_scale);
 #endif
 }
 

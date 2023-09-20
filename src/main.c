@@ -732,6 +732,15 @@ int Init_program(int argc,char * argv[])
   Main.time_of_safety_backup = 0;
   Spare.time_of_safety_backup = 0;
 
+#ifdef USE_SDL2
+  render_scale = 1;
+  envvar_val = getenv("GRAFX2_RENDER_SCALE");
+  if (envvar_val != NULL) {
+    render_scale = (int)strtol(envvar_val, NULL, 10);
+    if (render_scale < 1)
+      render_scale = 1;
+  }
+#endif
 
 #if defined(USE_SDL) || defined(USE_SDL2)
   // SDL
