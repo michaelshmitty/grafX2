@@ -36,6 +36,7 @@
 #include "op_c.h"
 #include "windows.h"
 #include "input.h"
+#include "graph.h"
 #include "palette.h"
 #include "shade.h"
 
@@ -1128,6 +1129,10 @@ void Button_Palette(int btn)
   short  used_colors = -1; // -1 <=> Inconnu
   byte   conversion_table[256];
 
+  word x, y;
+  byte colorval;
+  int merge_op_result;
+
   //T_Components * backup_palette;
   //T_Components * temp_palette;
   //T_Components * working_palette;
@@ -1708,6 +1713,7 @@ void Button_Palette(int btn)
         break;
 
       case 5 : // Merge
+        merge_op_result = 0;
         if (block_start!=block_end)
         {
           dword sum_r=0, sum_g=0, sum_b=0, used=0;
@@ -1739,6 +1745,7 @@ void Button_Palette(int btn)
             Set_green(i,sum_g/used,working_palette);
             Set_blue (i,sum_b/used,working_palette);
           }
+          merge_op_result = 1;
         }
         else
         {
@@ -1776,13 +1783,42 @@ void Button_Palette(int btn)
             Set_blue (Fore_color,sum_b,working_palette);
 
             Wait_end_of_click();
+
+            merge_op_result = 2;
           }
         }
-        Draw_all_palette_sliders(red_slider,green_slider,blue_slider,working_palette,block_start,block_end);
-        // On prépare la "modifiabilité" des nouvelles couleurs
-        Set_palette(working_palette);
-        memcpy(temp_palette,working_palette,sizeof(T_Palette));
-        need_to_remap=1;
+        if (merge_op_result) {
+          if (!image_is_backed_up) {
+            Backup_layers(LAYER_ALL);
+            image_is_backed_up = 1;
+          }
+          Palette_edit_step(); // Disable Undo
+          switch (merge_op_result) {
+           case 1:  // a block_start to block_end range
+            for (y = 0; y < Main.image_height; y++) {
+              for (x = 0; x < Main.image_width; x++) {
+                colorval = Read_pixel_from_current_layer(x, y);
+                if (colorval > block_start && colorval <= block_end)
+                  Pixel_in_current_screen(x, y, block_start);
+              }
+            }
+            break;
+           case 2:  // a Fore_color / temp_color merge
+            for (y = 0; y < Main.image_height; y++)
+              for (x = 0; x < Main.image_width; x++)
+                if (Read_pixel_from_current_layer(x, y) == temp_color)
+                  Pixel_in_current_screen(x, y, Fore_color);
+            break;
+          }
+          End_of_modification();
+          Update_color_count(&used_colors,color_usage);
+
+          Draw_all_palette_sliders(red_slider,green_slider,blue_slider,working_palette,block_start,block_end);
+          // On prépare la "modifiabilité" des nouvelles couleurs
+          Set_palette(working_palette);
+          memcpy(temp_palette,working_palette,sizeof(T_Palette));
+          need_to_remap=1;
+        }
 
         break;
 
