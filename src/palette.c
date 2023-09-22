@@ -1129,8 +1129,6 @@ void Button_Palette(int btn)
   short  used_colors = -1; // -1 <=> Inconnu
   byte   conversion_table[256];
 
-  word x, y;
-  byte colorval;
   int merge_op_result;
 
   //T_Components * backup_palette;
@@ -1792,24 +1790,19 @@ void Button_Palette(int btn)
             Backup_layers(LAYER_ALL);
             image_is_backed_up = 1;
           }
+          for (i=0; i<=255; i++)
+            conversion_table[i] = i;
           Palette_edit_step(); // Disable Undo
           switch (merge_op_result) {
            case 1:  // a block_start to block_end range
-            for (y = 0; y < Main.image_height; y++) {
-              for (x = 0; x < Main.image_width; x++) {
-                colorval = Read_pixel_from_current_layer(x, y);
-                if (colorval > block_start && colorval <= block_end)
-                  Pixel_in_current_screen(x, y, block_start);
-              }
-            }
+            for (i = block_start + 1; i <= block_end; i++)
+              conversion_table[i] = block_start;
             break;
            case 2:  // a Fore_color / temp_color merge
-            for (y = 0; y < Main.image_height; y++)
-              for (x = 0; x < Main.image_width; x++)
-                if (Read_pixel_from_current_layer(x, y) == temp_color)
-                  Pixel_in_current_screen(x, y, Fore_color);
+            conversion_table[temp_color] = Fore_color;
             break;
           }
+          Remap_image_highlevel(conversion_table);
           End_of_modification();
           Update_color_count(&used_colors,color_usage);
 
