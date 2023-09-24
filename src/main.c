@@ -603,6 +603,7 @@ int Init_program(int argc,char * argv[])
   char * directories[2] = {NULL, NULL};
   const char * videomode = NULL;
   int cmdline_pixelratio = -1;
+  char * envvar_val = NULL;
 
   #if defined(__MINT__)
   printf("===============================\n");
@@ -1028,26 +1029,6 @@ int Init_program(int argc,char * argv[])
   }
   #endif
 
-  Main.image_width=Screen_width/Pixel_width;
-  Main.image_height=Screen_height/Pixel_height;
-  Spare.image_width=Screen_width/Pixel_width;
-  Spare.image_height=Screen_height/Pixel_height;
-
-  // set the Mouse cursor at the center of the screen
-  Mouse_X = Screen_width / 2;
-  Mouse_Y = Screen_height / 2;
-
-  starting_image_mode = Config.Default_mode_layers ?
-    IMAGE_MODE_LAYERED : IMAGE_MODE_ANIMATION;
-  // Allocation de mémoire pour les différents écrans virtuels (et brosse)
-  if (Init_all_backup_lists(starting_image_mode , Screen_width, Screen_height)==0)
-    Error(ERROR_MEMORY);
-  // Update toolbars' visibility, now that the current image has a mode
-  Check_menu_mode();
-
-  // Nettoyage de l'écran virtuel (les autres recevront celui-ci par copie)
-  memset(Main_screen,0,Main.image_width*Main.image_height);
-
   // If image size was specified on command line, set that now
   if (setsize_width != 0 && setsize_height != 0)
   {
@@ -1056,6 +1037,28 @@ int Init_program(int argc,char * argv[])
     Spare.image_width=setsize_width;
     Spare.image_height=setsize_height;
   }
+  else
+  {
+    Main.image_width=Screen_width/Pixel_width;
+    Main.image_height=Screen_height/Pixel_height;
+    Spare.image_width=Screen_width/Pixel_width;
+    Spare.image_height=Screen_height/Pixel_height;
+  }
+
+  // set the Mouse cursor at the center of the screen
+  Mouse_X = Screen_width / 2;
+  Mouse_Y = Screen_height / 2;
+
+  starting_image_mode = Config.Default_mode_layers ?
+    IMAGE_MODE_LAYERED : IMAGE_MODE_ANIMATION;
+  // Allocation de mémoire pour les différents écrans virtuels (et brosse)
+  if (Init_all_backup_lists(starting_image_mode, Main.image_width, Main.image_height)==0)
+    Error(ERROR_MEMORY);
+  // Update toolbars' visibility, now that the current image has a mode
+  Check_menu_mode();
+
+  // Nettoyage de l'écran virtuel (les autres recevront celui-ci par copie)
+  memset(Main_screen,0,Main.image_width*Main.image_height);
 
   // Now that the backup system is there, we can store the gradients.
   memcpy(Main.backups->Pages->Gradients->Range, initial_gradients.Range, sizeof(initial_gradients.Range));
@@ -1083,6 +1086,9 @@ int Init_program(int argc,char * argv[])
 
   // On affiche le curseur pour débuter correctement l'état du programme:
   Display_cursor();
+
+  if (Config.Display_image_limits)
+    Display_image_limits();
 
   Spare.image_is_modified=0;
   Main.image_is_modified=0;
