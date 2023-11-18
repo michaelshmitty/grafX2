@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-  <id type="desktop">grafx2.desktop</id>
+  <id>eu.grafx2.grafx2</id>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-2.0 and CECILL-2.0</project_license>
   <name>GrafX2</name>
@@ -33,6 +33,13 @@
 
   <url type="homepage">http://grafx2.eu</url>
   <url type="bugtracker">https://pulkomandy.tk/projects/GrafX2</url>
+  <url type="faq">http://grafx2.chez.com/index.php?article2/frequently-asqued-questions</url>
+  <url type="help">http://grafx2.chez.com/index.php?article3/getting-started</url>
+  <url type="contact">http://grafx2.chez.com/index.php?static5/contact</url>
+  <url type="vcs-browser">https://gitlab.com/GrafX2/grafX2</url>
+  <url type="contribute">https://gitlab.com/GrafX2/grafX2/-/blob/master/CONTRIBUTING.md</url>
+
+  <launchable type="desktop-id">grafx2.desktop</launchable>
 
   <provides>
     <binary>grafx2-sdl2</binary>
@@ -41,6 +48,7 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="2.8" date="2021-03-24" />
     <release version="2.7" date="2020-01-30" />
     <release version="2.6" date="2019-01-10" />
     <release version="2.5" date="2018-05-06" />
