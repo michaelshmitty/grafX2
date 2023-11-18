@@ -1999,6 +1999,8 @@ int Save_CFG(void)
 
   filename = Filepath_append_to_dir(Config_directory, CONFIG_FILENAME);
 
+  GFX2_Log(GFX2_DEBUG, "Save_CFG() trying to save to %s\n", filename);
+
   Handle = fopen(filename, "wb");
   if (Handle == NULL)
   {

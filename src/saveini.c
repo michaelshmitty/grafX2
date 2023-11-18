@@ -469,6 +469,7 @@ int Save_INI(const T_Config * conf)
       return ERROR_SAVING_INI;
     }
   }
+  GFX2_Log(GFX2_DEBUG, "Save_INI() saving to %s\n", filename);
   new_file = fopen(filename, "w");
   if (new_file == 0)
   {
