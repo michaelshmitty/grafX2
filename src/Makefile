@@ -1265,7 +1265,7 @@ install : $(BIN)
 	done
 	# Icon and desktop file for debian
 	$(CP) ../misc/unix/grafx2.desktop $(DESTDIR)$(datadir)/applications/
-	$(CP) ../misc/unix/grafx2.appdata.xml $(DESTDIR)$(datadir)/metainfo/
+	$(CP) ../misc/unix/eu.grafx2.grafx2.metainfo.xml $(DESTDIR)$(datadir)/metainfo/
 	$(CP) ../misc/unix/grafx2.xpm $(DESTDIR)$(pixmapdir)
 	$(CP) ../share/icons/grafx2.svg $(DESTDIR)$(pixmapdir)
 	@echo Install complete
@@ -1292,7 +1292,7 @@ uninstall :
 	$(if $(wildcard $(DESTDIR)$(datadir)/grafx2),$(RMDIR) $(DESTDIR)$(datadir)/grafx2,)
 	# Icon and desktop file for debian
 	$(DELCOMMAND) $(DESTDIR)$(datadir)/applications/grafx2.desktop
-	$(DELCOMMAND) $(DESTDIR)$(datadir)/metainfo/grafx2.appdata.xml
+	$(DELCOMMAND) $(DESTDIR)$(datadir)/metainfo/eu.grafx2.grafx2.metainfo.xml
 	$(DELCOMMAND) $(DESTDIR)$(pixmapdir)/grafx2.xpm
 	$(DELCOMMAND) $(DESTDIR)$(pixmapdir)/grafx2.svg
 	@echo Uninstall complete
