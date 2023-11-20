@@ -19,23 +19,23 @@
   <screenshots>
     <screenshot type="default">
       <caption>Zoom functionality</caption>
-      <image>http://grafx2.chez.com/data/medias/screenshots/04-zoom.png</image>
+      <image>http://grafx2.eu/data/medias/screenshots/04-zoom.png</image>
     </screenshot>
     <screenshot>
       <caption>Grid mode</caption>
-      <image>http://grafx2.chez.com/data/medias/screenshots/06-grid.png</image>
+      <image>http://grafx2.eu/data/medias/screenshots/06-grid.png</image>
     </screenshot>
     <screenshot>
       <caption>The splash screen</caption>
-      <image>http://grafx2.chez.com/data/medias/screenshots/01-splash.png</image>
+      <image>http://grafx2.eu/data/medias/screenshots/01-splash.png</image>
     </screenshot>
   </screenshots>
 
   <url type="homepage">http://grafx2.eu</url>
   <url type="bugtracker">https://pulkomandy.tk/projects/GrafX2</url>
-  <url type="faq">http://grafx2.chez.com/index.php?article2/frequently-asqued-questions</url>
-  <url type="help">http://grafx2.chez.com/index.php?article3/getting-started</url>
-  <url type="contact">http://grafx2.chez.com/index.php?static5/contact</url>
+  <url type="faq">http://grafx2.eu/index.php?article2/frequently-asqued-questions</url>
+  <url type="help">http://grafx2.eu/index.php?article3/getting-started</url>
+  <url type="contact">http://grafx2.eu/index.php?static5/contact</url>
   <url type="vcs-browser">https://gitlab.com/GrafX2/grafX2</url>
   <url type="contribute">https://gitlab.com/GrafX2/grafX2/-/blob/master/CONTRIBUTING.md</url>
 
