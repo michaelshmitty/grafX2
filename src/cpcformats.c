@@ -872,7 +872,8 @@ void Load_SCR(T_IO_Context * context)
     }
     else
     {
-      GFX2_Log(GFX2_DEBUG, ".SCR file. Data length %d\n", i);
+      word crtc_regs_data = 0;
+      GFX2_Log(GFX2_DEBUG, ".SCR file. Data length %d, load at %04X, run at %04X\n", i, load_address, exec_address);
       if (load_address == 0x170)
       {
         // fichier iMPdraw v2
@@ -881,23 +882,7 @@ void Load_SCR(T_IO_Context * context)
         mode = cpc_ram[load_address + 0x14] - 0x0e;
         cpc_plus = cpc_ram[load_address + 0x3c];
         GFX2_Log(GFX2_DEBUG, "Mode %d CPC %d\n", (int)mode, (int)cpc_plus);
-        for (addr = load_address + 0x1d; cpc_ram[addr] < 16; addr += 2)
-        {
-          GFX2_Log(GFX2_DEBUG, " R%d = &H%02x = %d\n", cpc_ram[addr], cpc_ram[addr+1], cpc_ram[addr+1]);
-          // see http://www.cpcwiki.eu/index.php/CRTC#The_6845_Registers
-          switch(cpc_ram[addr])
-          {
-            case 1:
-              columns = cpc_ram[addr+1] * 2;
-              break;
-            case 6:
-              height = cpc_ram[addr+1] * 8;
-              break;
-            case 12:
-              display_start = ((cpc_ram[addr+1] & 0x30) << 10) | ((cpc_ram[addr+1] & 0x03) << 9);
-              GFX2_Log(GFX2_DEBUG, "  display_start &H%04X\n", display_start);
-           }
-        }
+        crtc_regs_data = load_address + 0x1d;
         snprintf(context->Comment, COMMENT_SIZE, "%s mode %d %s",
                  cpc_ram + load_address + 7, mode, cpc_plus ? "CPC+" : "");
         if (cpc_plus)
@@ -963,28 +948,9 @@ void Load_SCR(T_IO_Context * context)
         mode = cpc_ram[0x800];
         for (j = 0; j < 16; j++)
           pal_data[12*j] = CPC_Firmware_to_Hardware_color(cpc_ram[0x801 + j]);
-        addr = 0x847;
+        crtc_regs_data = 0x847;
         if (cpc_ram[0x80bb] == 1)
-          addr = 0x80bb;
-        for (; cpc_ram[addr] > 0 && cpc_ram[addr] < 16; addr += 2)
-        {
-          GFX2_Log(GFX2_DEBUG, " R%d = &H%02x = %d\n", cpc_ram[addr], cpc_ram[addr+1], cpc_ram[addr+1]);
-          // see http://www.cpcwiki.eu/index.php/CRTC#The_6845_Registers
-          switch(cpc_ram[addr])
-          {
-            case 1:
-              columns = cpc_ram[addr+1] * 2;
-              break;
-            case 6:
-              height = cpc_ram[addr+1] * 8;
-              break;
-            case 12:
-              display_start = (display_start & 0x01ff) | ((cpc_ram[addr+1] & 0x30) << 10) | ((cpc_ram[addr+1] & 0x03) << 9);
-              break;
-            case 13:
-              display_start = (display_start & 0xfe00) | (cpc_ram[addr+1] << 1);
-          }
-        }
+          crtc_regs_data = 0x80bb;
         snprintf(context->Comment, COMMENT_SIZE, "ConvImgCPC mode %d", mode);
       }
       else if (load_address == 0xC000 && cpc_ram[0xc7d0] != 0)
@@ -1014,7 +980,14 @@ void Load_SCR(T_IO_Context * context)
       {
         mode = cpc_ram[0x8008] & 3;
         memset(cpc_ram, cpc_ram[0x40], 0x40);
-        for (addr = 0x8094; cpc_ram[addr] < 16 && cpc_ram[addr] != 0; addr += 2)
+        crtc_regs_data = 0x8094;
+        cpc_plus_pal = cpc_ram + 0x80a0;
+      }
+      if (crtc_regs_data != 0)
+      {
+        display_start = 0xC000; /* default set by firmware */
+        GFX2_Log(GFX2_DEBUG, "Loading CRTC registers from &H%04X\n", crtc_regs_data);
+        for (addr = crtc_regs_data; cpc_ram[addr] > 0 && cpc_ram[addr] < 16; addr += 2)
         {
           GFX2_Log(GFX2_DEBUG, " R%d = &H%02x = %d\n", cpc_ram[addr], cpc_ram[addr+1], cpc_ram[addr+1]);
           // see http://www.cpcwiki.eu/index.php/CRTC#The_6845_Registers
@@ -1031,12 +1004,11 @@ void Load_SCR(T_IO_Context * context)
               break;
             case 13:
               display_start = (display_start & 0xfe00) | (cpc_ram[addr+1] << 1);
-           }
+          }
         }
-        GFX2_Log(GFX2_DEBUG, "  display_start &H%04X\n", display_start);
-        cpc_plus_pal = cpc_ram + 0x80a0;
+        GFX2_Log(GFX2_DEBUG, "  display_start &H%04X height %d columns %d\n", display_start, height, columns);
       }
-      if (i >= 30000)
+      else if (i >= 30000)
       {
         height = 272; columns = 96;
       }
