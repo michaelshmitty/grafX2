@@ -450,6 +450,11 @@ void Test_SCR(T_IO_Context * context, FILE * file)
       File_error = 0;
       return;
     }
+    else if (loading_address == 0x6000 && exec_address == 0x6000)
+    {
+      File_error = 0;
+      return;
+    }
     else if (loading_address == 0xc000 && file_size > 16000)
     {
       File_error = 0;
@@ -899,6 +904,54 @@ void Load_SCR(T_IO_Context * context)
           for (j = 0; j < 16; j++)
             pal_data[12*j] = cpc_ram[0x7f00 + j];
         }
+      }
+      else if (load_address == 0x6000 && exec_address == 0x6000)
+      {
+        int j;
+        /* CPCFILL.SCR
+        6000 3e 00        LD A,0
+        6002 cd 0e bc     CALL BC0E   ; SCR SET MODE
+        6005 cd 19 bd     CALL BD19   ; MC WAIT FLYBACK
+        6008 3a 55 a0     LD A,(A055)
+        600b 47           LD B,A
+        600c 4f           LD C,A
+        600d cd 38 bc     CALL BC38   ; SCR SET BORDER
+        6010 21 56 a0     LD HL,A056
+        6013 cd 31 60     CALL 6031   ; LOADINKS
+        6016 cd 19 bd     CALL BD19   ; MC WAIT FLYBACK
+        6019 21 45 60     LD HL,6045  ; screen data
+        601c 11 00 c0     LD DE,C000
+        601f 01 00 40     LD BC,4000
+        6022 ed b0        LDIR        ; copy bc bytes from (hl) to (de)
+        6024 cd 19 bd     CALL BD19   ; MC WAIT FLYBACK
+        6027 21 45 a0     LD HL,A045
+        602a cd 31 60     CALL 6031   ; LOADINKS
+        602d cd 18 bb     CALL BB18   ; KM WAIT KEY
+        6030 c9           RET
+          LOADINKS:
+        6031 06 10        LD B,10   ; useless ?
+        6033 3e 00        LD A,0
+          LOOPINKS:
+        6035 4e           LD C,(HL)
+        6036 23           INC HL
+        6037 e5           PUSH HL
+        6038 c5           PUSH BC
+        6039 f5           PUSH AF
+        603a 41           LD B,C
+        603b cd 32 bc     CALL BC32   ; SCR SET INK
+        603e f1           POP AF
+        603f c1           POP BC
+        6040 e1           POP HL
+        6041 3c           INC A
+        6042 10 f1        DJNZ 6035 ; LOOPINKS
+        6044 c9           RET
+          PIXELDATA:
+        */
+        mode = cpc_ram[exec_address + 1];
+        for (j = 0; j < 16; j++)
+          pal_data[12*j] = CPC_Firmware_to_Hardware_color(cpc_ram[load_address + 0x4045 + j]);
+        display_start = 0xc000;
+        memcpy(cpc_ram + 0xc000, cpc_ram + load_address + 0x45, 0x4000);
       }
       else if (load_address == 0x200 && exec_address == 0x821)
       {
