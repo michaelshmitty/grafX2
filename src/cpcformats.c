@@ -444,7 +444,7 @@ void Test_SCR(T_IO_Context * context, FILE * file)
       File_error = 0;
       return;
     }
-    else if (loading_address == 0x200 && exec_address == 0x811 && file_size > 16000)
+    else if (loading_address == 0x200 && (exec_address == 0x811 || exec_address == 0x821) && file_size > 16000)
     {
       // convimgcpc
       File_error = 0;
@@ -899,6 +899,74 @@ void Load_SCR(T_IO_Context * context)
           for (j = 0; j < 16; j++)
             pal_data[12*j] = cpc_ram[0x7f00 + j];
         }
+      }
+      else if (load_address == 0x200 && exec_address == 0x821)
+      {
+        /* BND.SCR
+        0821 f3           DI
+        0822 01 11 bc     LD BC,BC11
+        0825 21 86 08     LD HL,0886 ; UNLOCK_SEQ
+        0828 04           INC B     <--+
+        0829 ed a3        OUTI         |
+        082b 0d           DEC C        |
+        082c 20 fa        JR NZ,0828 --+
+        082e 21 97 08     LD HL,0897 ; OVERSCAN_REG_VALUES
+        0831 cd 75 08     CALL 0875  ; SEND_CRTC
+        0834 01 b8 7f     LD BC,7FB8
+        0837 3a 00 08     LD A,(0800) ; 8C
+        083a ed 49        OUT (C),C  ; CPC+ unleashed ;)
+        083c ed 79        OUT (C),A  ; Set mode. 8C => Mode 0
+        083e 21 01 08     LD HL,0801
+        0841 11 00 64     LD DE,6400 ; CPC+ Palette
+        0844 01 20 00     LD BC,0020
+        0847 ed b0        LDIR       ; copy bc bytes from (hl) to (de)
+          LOOP:
+        0849 af           XOR A
+        084a 01 0e f4     LD BC,F40E
+        084d ed 49        OUT (C),C
+        084f 01 c0 f6     LD BC,F6C0
+        0852 ed 49        OUT (C),C
+        0854 ed 79        OUT (C),A
+        0856 01 92 f7     LD BC,F792
+        0859 ed 49        OUT (C),C
+        085b 01 45 f6     LD BC,F645
+        085e ed 49        OUT (C),C
+        0860 06 f4        LD B,F4    ; BC=F445
+        0862 ed 78        IN A,(C)
+        0864 01 82 f7     LD BC,F782
+        0867 ed 49        OUT (C),C
+        0869 17           RLA
+        086a 38 dd        JR C,0849 ; LOOP
+        086c 01 a0 7f     LD BC,7FA0
+        086f ed 49        OUT (C),C  ; CPC+ disabled ?
+        0871 fb           EI
+        0872 21 a5 08     LD HL,08A5 ; STANDARD_REG_VALUES
+          SEND_CRTC:
+        0875 01 00 bc     LD BC,BC00
+          CRTC_LOOP:
+        0878 7e           LD A,(HL)
+        0879 a7           AND A
+        087a c8           RET Z
+        087b ed 79        OUT (C),A
+        087d 04           INC B
+        087e 23           INC HL
+        087f 7e           LD A,(HL)
+        0880 ed 79        OUT (C),A
+        0882 23           INT HL
+        0883 05           DEC B
+        0884 18 f2        JR 0878    ; CRTC_LOOP
+          UNLOCK_SEQ:
+        0886 ff 00 ff 77 b3 51 a8 d4 ; CPC Plus ASIC unlocking sequence
+        088e 62 39 9c 46 2b 15 8a cd
+        0896 ee
+            OVERSCAN_REG_VALUES:
+        0897 01 30 02 32 06 22 07 23 0c 0d 0d 00 00 00
+            STANDARD_REG_VALUES:
+        08a5 01 28 02 2e 06 19 07 1e 0c 30 00 00
+        */
+        mode = cpc_ram[0x0800] & 3;
+        cpc_plus_pal = cpc_ram + 0x0801;
+        crtc_regs_data = 0x897;
       }
       else if (load_address == 0x200 && exec_address == 0x811)
       {
