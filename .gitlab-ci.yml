@@ -123,7 +123,7 @@ job_switch:
     stage: build
     image: devkitpro/devkita64
     before_script:
-        - apt-get update -qq &&  apt-get install -y -qq build-essential libpng-dev zip dos2unix
+        - apt-get update -qq && apt-get install -y -qq build-essential libpng-dev zip dos2unix jq
         - "export PATH=$PATH:$DEVKITPRO/portlibs/switch/bin"
     script:
         - "SWITCH=1 make -j2 grafx2 || exit 1"
