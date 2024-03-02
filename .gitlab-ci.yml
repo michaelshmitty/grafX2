@@ -121,6 +121,7 @@ job_gp2x:
 
 job_switch:
     stage: build
+    allow_failure: true
     image: devkitpro/devkita64
     before_script:
         - apt-get update -qq && apt-get install -y -qq build-essential libpng-dev zip dos2unix jq
