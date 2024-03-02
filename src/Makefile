@@ -601,6 +601,9 @@ endif
         LOPT += `$(DEVKITPRO)/portlibs/switch/bin/sdl2-config --libs`
         LOPT += `$(DEVKITPRO)/portlibs/switch/bin/aarch64-none-elf-pkg-config --libs-only-l SDL2_image`
         LOPT += `$(DEVKITPRO)/portlibs/switch/bin/aarch64-none-elf-pkg-config --libs-only-l SDL2_ttf`
+        # SDL2_ttf depends on harfbuzz. see
+        # https://gitlab.com/GrafX2/grafX2/-/merge_requests/371#note_1797980038
+        LOPT += `$(DEVKITPRO)/portlibs/switch/bin/aarch64-none-elf-pkg-config --libs-only-l harfbuzz`
         LOPT += -lstdc++ -lnx
       else
       ifdef AROS32CROSS
