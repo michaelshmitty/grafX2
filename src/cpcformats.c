@@ -24,16 +24,22 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+
+#include "engine.h"
 #include "global.h"
 #include "fileformats.h"
+#include "input.h"
 #include "io.h"
 #include "loadsavefuncs.h"
 #include "libraw2crtc.h"
 #include "oldies.h"
+#include "readline.h"
 #include "windows.h"
 #include "misc.h"
 #include "gfx2mem.h"
 #include "gfx2log.h"
+#include "screen.h"
+#include "windows.h"
 
 #ifndef MIN
 #define MIN(a,b) (((a)<(b)) ? (a) : (b))
@@ -668,7 +674,7 @@ void Load_SCR(T_IO_Context * context)
   word load_address = 0x4000; // default for OCP Art studio
   word exec_address = 0;
   word display_start = 0x4000;
-  byte mode, color_anim_flag, color_anim_delay;
+  byte mode = -1, color_anim_flag, color_anim_delay;
   byte pal_data[236]; // 12 palettes of 16+1 colors + 16 excluded inks + 16 protected inks
   word width, height = 200;
   byte bpp;
@@ -1136,6 +1142,7 @@ void Load_SCR(T_IO_Context * context)
     }
   }
 
+check_mode:
   switch (mode)
   {
     case 0:
@@ -1154,7 +1161,88 @@ void Load_SCR(T_IO_Context * context)
       ratio = PIXEL_TALL;
       break;
     default:
-      return; // unsupported
+    {
+      static const char* mode_label[] = {"0", "1", "2"};
+      T_Dropdown_button* btn_mode;
+      T_Special_button* btn_width;
+      T_Special_button* btn_height;
+      int button;
+      unsigned int i;
+      char  str[8];
+
+      // We didn't find any recongizable header.
+      // In preview, use some reasonable default values
+      // In real loading, ask the user
+      display_start = load_address;
+      width = 320;
+      height = 200;
+      columns = 80;
+      mode = 0;
+
+      if (context->Type == CONTEXT_MAIN_IMAGE) {
+        Open_window(200, 120, "CPC loading settings");
+        Window_set_normal_button(110,100,80,15,"Load",1,1,KEY_RETURN); // 1
+        Window_set_normal_button(10,100,80,15,"Cancel",1,1,KEY_ESCAPE); // 2
+                                                                        // Variables we need to set: width (columns), height
+
+        Print_in_window(13,20,"Mode:",MC_Dark,MC_Light);
+        btn_mode = Window_set_dropdown_button(68,16,48,15,32,mode_label[0],1, 0, 1, LEFT_SIDE,0); // 3
+        Window_dropdown_clear_items(btn_mode);
+        for (i=0; i<sizeof(mode_label)/sizeof(mode_label[0]); i++)
+          Window_dropdown_add_item(btn_mode,i,mode_label[i]);
+
+        Print_in_window(13,40,"Width:",MC_Dark,MC_Light);
+        btn_width = Window_set_input_button(68, 38, 4); // 4
+        Num2str(width, str, 4);
+        Window_input_content(btn_width, str);
+
+        Print_in_window(13,60,"Height:",MC_Dark,MC_Light);
+        btn_height = Window_set_input_button(68, 58, 4); // 5
+        Num2str(height, str, 4);
+        Window_input_content(btn_height, str);
+
+        Update_window_area(0,0,Window_width,Window_height);
+        Display_cursor();
+
+        do
+        {
+          button = Window_clicked_button();
+
+          if (button == 3) {
+              mode = Window_attribute2;
+          }
+
+          if (button == 4) {
+            Num2str(width, str, 4);
+            Readline(70, 40, str, 4, INPUT_TYPE_INTEGER);
+            width = atoi(str);
+            Display_cursor();
+          }
+
+          if (button == 5) {
+              Num2str(height, str, 4);
+              Readline(70, 60, str, 4, INPUT_TYPE_INTEGER);
+              height = atoi(str);
+              Display_cursor();
+          }
+        } while(button!=1 && button!=2);
+
+        Close_window();
+        Display_cursor();
+
+        if (button == 2)
+            return;
+      }
+
+      switch (mode) {
+        case 0: columns = width / 2; break;
+        case 1: columns = width / 4; break;
+        case 2: columns = width / 8; break;
+      }
+    }
+
+    // All values set, try again
+    goto check_mode;
   }
 
   if (Config.Clear_palette)
