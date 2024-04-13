@@ -25,6 +25,7 @@
 #include <stdarg.h>
 #include "../struct.h"
 #include "../global.h"
+#include "../readline.h"
 
 void Warning_message(const char * message)
 {
@@ -128,4 +129,20 @@ word Count_used_colors(dword * usage)
 word Count_used_colors_area(dword* usage, word start_x, word start_y, word width, word height)
 {
   return 256;
+}
+
+void Window_input_content(T_Special_button * button, const char * content)
+{
+}
+
+T_Special_button * Window_set_input_button(word x_pos, word y_pos,
+  word width_in_characters)
+{
+  return NULL;
+}
+
+byte Readline(word x_pos, word y_pos, char * str, byte visible_size,
+              enum INPUT_TYPE input_type)
+{
+  return 0;
 }
