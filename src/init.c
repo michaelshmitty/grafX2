@@ -2391,17 +2391,7 @@ void Set_config_defaults(void)
 
 #ifdef GRAFX2_CATCHES_SIGNALS
 
-#if defined(WIN32)
-#if defined(_MSC_VER)
-typedef void (*__p_sig_fn_t)(int);
-#endif
-  #define SIGHANDLER_T __p_sig_fn_t
-#elif defined(__macosx__)
-  typedef void (*sig_t) (int);
-  #define SIGHANDLER_T sig_t
-#else
-  #define SIGHANDLER_T __sighandler_t
-#endif
+typedef void (*SIGHANDLER_T) (int);
 
 // Memorize the signal handlers of SDL
 SIGHANDLER_T Handler_TERM=SIG_DFL;
