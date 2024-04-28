@@ -6,7 +6,7 @@ _/    _/  _/        _/    _/    _/        _/  _/      _/
 
 GrafX2 - The Ultimate 256-color bitmap paint program
 Copyright (C)1996-2001 Sunset Design (G.Dorme & K.Maritaud)
-Copyright (C)2007-2023 the Grafx2 Project Team (A.Destugues & Y.Rizoud
+Copyright (C)2007-2024 the Grafx2 Project Team (A.Destugues & Y.Rizoud
                                                 & T.Bernard)
 -------------------------------------
 
@@ -82,6 +82,10 @@ Sends greetings and glops to pouet.net : http://pouet.net/prod.php?which=51865
 === HISTORY ===
 
 Short revision history :
+  * 04/2024  2.9       Load and save Apple 2GS formats
+                       Load PI4 and PI5 formats (Atari TT/Falcon)
+                       Load more C64 and CPC file formats
+                       Fix more crashes and bugs
   * 03/2021  2.8       Fix several crashes
                        More Amstrad CPC file formats support
                        Load and save SymbOS SGX files
