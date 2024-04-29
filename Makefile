@@ -5,7 +5,7 @@ endif
 
 .PHONY:	all tools grafx2 ziprelease 3rdparty win32installer \
         doc doxygen docarchive doxygenarchive htmldoc \
-        updateversion unicodefonts check
+        updateversion unicodefonts check dist
 
 all:	grafx2 tools
 
@@ -52,3 +52,6 @@ src/version.c:	grafx2
 updateversion:	src/version.c
 	$(MAKE) -C src gfx2.rc
 	$(MAKE) -C install/ updateversion
+
+dist:
+	git archive --format=tar.gz --prefix=grafx2-v2.9/src/ --add-file src/6502.c --add-file src/6502.h --add-file src/6502types.h --add-file src/recoil.c --add-file src/recoil.h --prefix=grafx2-v2.9/ -9 -o ../grafx2-v2.9.tar.gz HEAD

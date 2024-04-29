@@ -65,6 +65,9 @@ use lua scripts to generate and alter brush and pictures.
 These options can be combined, for example for a build without ttf nor lua type
 make NOTTF=1 NOLUA=1
 
+The top-level makefile is mainly useful for our CI builds. In addition to
+building the sources, it downloads several dependencies and builds them for
+various platforms. In most cases, you don't need to use it.
 
 === Build variants ===
 
