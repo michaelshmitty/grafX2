@@ -50,8 +50,8 @@ htmldoc:
 src/version.c:	grafx2
 
 updateversion:	src/version.c
-	$(MAKE) -C src gfx2.rc
+	$(MAKE) -C src gfx2.rc grafx2.rdef
 	$(MAKE) -C install/ updateversion
 
 dist:
-	git archive --format=tar.gz --prefix=grafx2-v2.9/src/ --add-file src/6502.c --add-file src/6502.h --add-file src/6502types.h --add-file src/recoil.c --add-file src/recoil.h --prefix=grafx2-v2.9/ -9 -o ../grafx2-v2.9.tar.gz HEAD
+	git archive --format=tar.gz --prefix=grafx2-v2.9/src/ --add-file src/6502.c --add-file src/6502.h --add-file src/recoil.c --add-file src/recoil.h --prefix=grafx2-v2.9/ -9 -o ../grafx2-v2.9.tar.gz HEAD . ":!3rdparty"
