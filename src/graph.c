@@ -342,14 +342,14 @@ try_again:
       break;
   }
 
-  screen_changed = (Screen_width*Pixel_width*render_scale!=width ||
-                    Screen_height*Pixel_height*render_scale!=height ||
+  screen_changed = (Screen_width*Pixel_width*render_scale_x!=width ||
+                    Screen_height*Pixel_height*render_scale_y!=height ||
                     Video_mode[Current_resolution].Fullscreen != fullscreen);
 
   // Valeurs raisonnables: minimum 320x200
   if (!fullscreen)
   {
-    if (Wrong_resize>20 && (width < 320*pix_width*render_scale || height < 200*pix_height*render_scale))
+    if (Wrong_resize>20 && (width < 320*pix_width*render_scale_x || height < 200*pix_height*render_scale_y))
     {
       if(pix_ratio != PIXEL_SIMPLE) {
         pix_ratio = PIXEL_SIMPLE;
@@ -360,18 +360,18 @@ try_again:
       }
     }
 
-    if (width > 320*pix_width*render_scale && height > 200*pix_height*render_scale)
+    if (width > 320*pix_width*render_scale_x && height > 200*pix_height*render_scale_y)
       Wrong_resize = 0;
 
-    if (width < 320*pix_width*render_scale)
+    if (width < 320*pix_width*render_scale_x)
     {
-        width = 320*pix_width*render_scale;
+        width = 320*pix_width*render_scale_y;
         screen_changed=1;
         Wrong_resize++;
     }
-    if (height < 200*pix_height*render_scale)
+    if (height < 200*pix_height*render_scale_x)
     {
-        height = 200*pix_height*render_scale;
+        height = 200*pix_height*render_scale_y;
         screen_changed=1;
         Wrong_resize++;
     }
@@ -381,7 +381,7 @@ try_again:
   }
   else
   {
-    if (width < 320*pix_width*render_scale || height < 200*pix_height*render_scale)
+    if (width < 320*pix_width*render_scale_x || height < 200*pix_height*render_scale_y)
       return 1;
   }
   // La largeur doit être un multiple de 4
@@ -461,8 +461,8 @@ try_again:
         break;
     }
   }
-  Screen_width = width/Pixel_width/render_scale;
-  Screen_height = height/Pixel_height/render_scale;
+  Screen_width = width/Pixel_width/render_scale_x;
+  Screen_height = height/Pixel_height/render_scale_y;
 
   if (screen_changed)
     GFX2_Set_mode(&width, &height, fullscreen);
@@ -513,8 +513,8 @@ try_again:
   {
     for (index=1; index<Nb_video_modes; index++)
     {
-      if (Video_mode[index].Width/Pixel_width/render_scale==Screen_width &&
-          Video_mode[index].Height/Pixel_height/render_scale==Screen_height)
+      if (Video_mode[index].Width/Pixel_width/render_scale_x==Screen_width &&
+          Video_mode[index].Height/Pixel_height/render_scale_y==Screen_height)
       {
         Current_resolution=index;
         break;

@@ -171,8 +171,8 @@ void GFX2_Set_mode(int *width, int *height, int fullscreen)
   SDL_SetTextureScaleMode(Texture_SDL, SDL_ScaleModeNearest);
   render_dstrect.x = 0;
   render_dstrect.y = 0;
-  render_dstrect.w = Screen_width * Pixel_width * render_scale;
-  render_dstrect.h = Screen_height * Pixel_height * render_scale;
+  render_dstrect.w = Screen_width * Pixel_width * render_scale_x;
+  render_dstrect.h = Screen_height * Pixel_height * render_scale_y;
   if (Screen_SDL != NULL)
     SDL_FreeSurface(Screen_SDL);
   Screen_SDL = SDL_CreateRGBSurface(0, Screen_width * Pixel_width, Screen_height * Pixel_height, 8, 0, 0, 0, 0);
@@ -800,7 +800,7 @@ void Set_mouse_position(void)
 #if defined(USE_SDL)
   SDL_WarpMouse(Mouse_X*Pixel_width, Mouse_Y*Pixel_height);
 #elif defined(USE_SDL2)
-  SDL_WarpMouseInWindow(NULL, Mouse_X*Pixel_width*render_scale, Mouse_Y*Pixel_height*render_scale);
+  SDL_WarpMouseInWindow(NULL, Mouse_X*Pixel_width*render_scale_x, Mouse_Y*Pixel_height*render_scale_y);
 #endif
 }
 

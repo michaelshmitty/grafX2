@@ -734,12 +734,23 @@ int Init_program(int argc,char * argv[])
   Spare.time_of_safety_backup = 0;
 
 #ifdef USE_SDL2
-  render_scale = 1;
+  render_scale_x = 1;
+  render_scale_y = 1;
   envvar_val = getenv("GRAFX2_RENDER_SCALE");
   if (envvar_val != NULL) {
-    render_scale = (int)strtol(envvar_val, NULL, 10);
-    if (render_scale < 1)
-      render_scale = 1;
+    char* s1 = strtok(envvar_val, ",");
+    char* s2 = strtok(NULL, ",");
+    render_scale_x = (int)strtol(s1, NULL, 10);
+    if (render_scale_x < 1)
+      render_scale_x = 1;
+
+    if (s2 == NULL)
+      render_scale_y = render_scale_x;
+    else {
+      render_scale_y = (int)strtol(s2, NULL, 10);
+      if (render_scale_y < 1)
+        render_scale_y = 1;
+    }
   }
 #endif
 

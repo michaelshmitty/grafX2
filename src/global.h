@@ -284,9 +284,11 @@ GFX2_GLOBAL int Pixel_height;
 
 #ifdef USE_SDL2
 // Scale up the entire window contents by this factor
-GFX2_GLOBAL int render_scale;
+GFX2_GLOBAL int render_scale_x;
+GFX2_GLOBAL int render_scale_y;
 #else
-#define render_scale 1
+#define render_scale_x 1
+#define render_scale_y 1
 #endif
 
 /// Current image data
