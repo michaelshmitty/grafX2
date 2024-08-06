@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
   <id>eu.grafx2.grafx2</id>
+  <developer id="io.gitlab.grafx2">
+    <name>The GrafX2 Developers</name>
+  </developer>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-2.0 and CECILL-2.0</project_license>
   <name>GrafX2</name>
@@ -19,23 +22,23 @@
   <screenshots>
     <screenshot type="default">
       <caption>Zoom functionality</caption>
-      <image>http://grafx2.eu/data/medias/screenshots/04-zoom.png</image>
+      <image>https://grafx2.eu/data/medias/screenshots/04-zoom.png</image>
     </screenshot>
     <screenshot>
       <caption>Grid mode</caption>
-      <image>http://grafx2.eu/data/medias/screenshots/06-grid.png</image>
+      <image>https://grafx2.eu/data/medias/screenshots/06-grid.png</image>
     </screenshot>
     <screenshot>
       <caption>The splash screen</caption>
-      <image>http://grafx2.eu/data/medias/screenshots/01-splash.png</image>
+      <image>https://grafx2.eu/data/medias/screenshots/01-splash.png</image>
     </screenshot>
   </screenshots>
 
-  <url type="homepage">http://grafx2.eu</url>
+  <url type="homepage">https://grafx2.eu</url>
   <url type="bugtracker">https://pulkomandy.tk/projects/GrafX2</url>
-  <url type="faq">http://grafx2.eu/index.php?article2/frequently-asqued-questions</url>
-  <url type="help">http://grafx2.eu/index.php?article3/getting-started</url>
-  <url type="contact">http://grafx2.eu/index.php?static5/contact</url>
+  <url type="faq">https://grafx2.eu/index.php?article2/frequently-asqued-questions</url>
+  <url type="help">https://grafx2.eu/index.php?article3/getting-started</url>
+  <url type="contact">https://grafx2.eu/index.php?static5/contact</url>
   <url type="vcs-browser">https://gitlab.com/GrafX2/grafX2</url>
   <url type="contribute">https://gitlab.com/GrafX2/grafX2/-/blob/master/CONTRIBUTING.md</url>
 
@@ -48,6 +51,7 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="2.9" date="2024-04-28" />
     <release version="2.8" date="2021-03-24" />
     <release version="2.7" date="2020-01-30" />
     <release version="2.6" date="2019-01-10" />
