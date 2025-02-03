@@ -512,14 +512,14 @@ byte *Render_text_TTF(const char *str, int font_number, int size, int antialias,
   // Text rendering: creates a 8bit surface with its dedicated palette
   #ifdef __ANDROID__
   if (antialias)
-    text_surface=TTF_RenderUTF8_Shaded(font, str, fg_color, bg_color );
+    text_surface=TTF_RenderUTF8_Shaded_Wrapped(font, str, fg_color, bg_color, 0);
   else
-    text_surface=TTF_RenderUTF8_Solid(font, str, fg_color);
+    text_surface=TTF_RenderUTF8_Solid_Wrapped(font, str, fg_color, 0);
   #else
   if (antialias)
-    text_surface=TTF_RenderText_Shaded(font, str, fg_color, bg_color );
+    text_surface=TTF_RenderText_Shaded_Wrapped(font, str, fg_color, bg_color, 0);
   else
-    text_surface=TTF_RenderText_Solid(font, str, fg_color);
+    text_surface=TTF_RenderText_Solid_Wrapped(font, str, fg_color, 0);
   #endif
   if (!text_surface)
   {

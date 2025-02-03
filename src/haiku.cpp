@@ -40,7 +40,7 @@ qword haiku_get_free_space(char* path)
 	entry_ref ref;
 	bpath.GetRef(&ref);
 	BVolume disk(ref.device);
-	return (qword) disk.Capacity();	
+	return (qword) disk.Capacity();
 }
 
 /**
@@ -51,11 +51,14 @@ char* haiku_get_clipboard()
 	if (be_clipboard->Lock())
 	{
 		const char* value;
+		char* copy;
 		ssize_t len;
-		be_clipboard->Data()->FindData("text/plain", B_MIME_TYPE, (const void **)&value, &len);
 
+		be_clipboard->Data()->FindData("text/plain", B_MIME_TYPE, (const void **)&value, &len);
+		copy = strndup(value, len); // copy and NULL terminate
 		be_clipboard->Unlock();
-		return strdup(value);
+
+		return copy;
 	}
 	return NULL;
 }
