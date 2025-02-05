@@ -1,4 +1,4 @@
-# (c) 2018-2024 Thomas BERNARD
+# (c) 2018-2025 Thomas BERNARD
 #
 # Makefile to build GrafX2 library dependencies.
 #
@@ -72,7 +72,7 @@ SDL2IMAGEARCH = $(SDL2IMAGE).tar.gz
 SDL2IMAGESIG = $(SDL2IMAGEARCH).sig
 SDL2IMAGEURL = https://github.com/libsdl-org/SDL_image/releases/download/release-$(SDL2IMAGEVER)/$(SDL2IMAGEARCH)
 SDL2IMAGESIGURL = $(SDL2IMAGEURL).sig
-LATESTSDL2IMAGEVER := $(shell curl -s -S https://api.github.com/repos/libsdl-org/SDL_image/releases | jq -r '.[] | select (.prerelease == false and .draft == false) | .name' | head -n1)
+LATESTSDL2IMAGEVER := $(shell curl -s -S https://api.github.com/repos/libsdl-org/SDL_image/releases | jq -r '.[] | select (.prerelease == false and .draft == false) | .name' | grep -e '^2\.' | head -n1)
 SDL2TTFVER = $(LATESTSDL2TTFVER)
 SDL2TTF = SDL2_ttf-$(SDL2TTFVER)
 SDL2TTFARCH = $(SDL2TTF).tar.gz
