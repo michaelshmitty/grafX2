@@ -509,7 +509,15 @@ byte *Render_text_TTF(const char *str, int font_number, int size, int antialias,
   bg_color.a=fg_color.a=255;
 #endif
   
+#ifdef SDL_TTF_VERSION_ATLEAST
+#if SDL_TTF_VERSION_ATLEAST(2, 0, 18)
+#define SDL_TTF_VERSION_ATLEAST_2_0_18
+#endif
+#endif
+
   // Text rendering: creates a 8bit surface with its dedicated palette
+#ifdef SDL_TTF_VERSION_ATLEAST_2_0_18
+  // use the TTF_Render*_*_Wrapped() functions
   #ifdef __ANDROID__
   if (antialias)
     text_surface=TTF_RenderUTF8_Shaded_Wrapped(font, str, fg_color, bg_color, 0);
@@ -521,6 +529,19 @@ byte *Render_text_TTF(const char *str, int font_number, int size, int antialias,
   else
     text_surface=TTF_RenderText_Solid_Wrapped(font, str, fg_color, 0);
   #endif
+#else // SDL_ttf older than 2.0.18
+  #ifdef __ANDROID__
+  if (antialias)
+    text_surface=TTF_RenderUTF8_Shaded(font, str, fg_color, bg_color );
+  else
+    text_surface=TTF_RenderUTF8_Solid(font, str, fg_color);
+  #else
+  if (antialias)
+    text_surface=TTF_RenderText_Shaded(font, str, fg_color, bg_color );
+  else
+    text_surface=TTF_RenderText_Solid(font, str, fg_color);
+  #endif
+#endif
   if (!text_surface)
   {
     TTF_CloseFont(font);
