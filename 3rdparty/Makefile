@@ -51,7 +51,7 @@ SDLTTFARCH=$(SDLTTF).tar.gz
 SDLTTFURL=https://www.libsdl.org/projects/SDL_ttf/release/$(SDLTTFARCH)
 SDLTTFSHA256 = 724cd895ecf4da319a3ef164892b72078bd92632a5d812111261cde248ebcdb7
 # we cannot take the latest version automatically because SDL2DEVEL is not signed :(
-SDL2VER = 2.30.12
+SDL2VER = 2.32.0
 LATESTSDL2VER = $(shell curl -s -S https://api.github.com/repos/libsdl-org/SDL/releases | jq -r '.[].name' | grep -e '^2\.' | head -n1 )
 SDL2 = SDL2-$(SDL2VER)
 SDL2ARCH = $(SDL2).tar.gz
@@ -64,8 +64,7 @@ SDL2PATCHES += SDL2-NSOSVersion.patch
 endif
 SDL2DEVEL = SDL2-devel-$(SDL2VER)-mingw.tar.gz
 SDL2DEVELURL = https://www.libsdl.org/release/$(SDL2DEVEL)
-SDL2DEVELPATCH = SDL2-devel.patch
-SDL2DEVELSHA256 = dddafbf0705a8cbe1f97c69680886ce147ed4d38f1d04e03523681298e081b0f
+SDL2DEVELSHA256 = 5df6dcb76e55c508891d4b3fdb3710704c786858056af67249aca8790a54caf6
 SDL2IMAGEVER = $(LATESTSDL2IMAGEVER)
 SDL2IMAGE = SDL2_image-$(SDL2IMAGEVER)
 SDL2IMAGEARCH = $(SDL2IMAGE).tar.gz
@@ -335,7 +334,6 @@ endif
 ifdef WIN32
 $(PREFIX)/lib/libSDL2main.a:	archives/$(SDL2DEVEL)
 	$(TAR) xzf $<
-	cd $(SDL2) && patch -p1 < ../$(SDL2DEVELPATCH)
 	$(MKDIR) $(PREFIX)
 	cd $(SDL2) && $(MAKE) install-package arch=i686-w64-mingw32 prefix=$(PREFIX)
 	$(MKDIR) ../bin && $(CP) $(PREFIX)/bin/SDL2.dll ../bin && $(STRIP) ../bin/SDL2.dll
