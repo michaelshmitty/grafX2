@@ -162,7 +162,7 @@ char * Get_data_directory(const char * program_dir)
 {
   const char * to_append;
   // On all platforms, data is relative to the executable's directory
-  #if defined(__macosx__)
+  #if defined(__macosx__) && !defined(USE_SDL2)
     // On MacOSX,  it is stored in a special folder:
     to_append = "Contents/Resources/";
   #elif defined (__GP2X__) || defined (__gp2x__) || defined (__WIZ__) || defined (__CAANOO__) || defined(GCWZERO) || defined(__AROS__) || defined(__ANDROID__) || defined(__amigaos__) 

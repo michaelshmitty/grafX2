@@ -160,6 +160,16 @@ else
 #For all other platforms, we can rely on uname
   PLATFORM = $(shell uname)
 
+  ifeq ($(PLATFORM),Darwin)
+    DARWINVER = $(shell gcc -dumpmachine | sed 's/.*darwin\([0-9]*\).*/\1/' )
+    ifeq (greater, $(shell [ $(DARWINVER) -gt 11 ] && echo "greater"))
+      # Just use "homebrew" on Mac OS X Mountain Lion (10.8) and above. 
+      # Use "brew install sdl2 sdl2_image sdl2_ttf lua" to install prereqs.
+      # Use "make API=sdl2" to build, then "make API=sdl2 install" to install.
+      PLATFORM = homebrew
+    endif
+  endif
+
   ifeq ($(PLATFORM),AmigaOS) # 1
     #AmigaOS (3 or 4) specific
     DELCOMMAND = rm -rf
@@ -677,7 +687,17 @@ endif
           COPT += -D_NETBSD_SOURCE
         endif
 
-        LOPT = -lm -lz
+        ifeq ($(PLATFORM), homebrew)
+          COPT += -D_DARWIN_C_SOURCE -D__macosx__
+          LOPT = -Wl,-framework,Cocoa -lz
+          PLATFORMOBJ += pasteboard.o
+          ifeq ($(API),sdl2)
+            PLATFORMOBJ += SDL2Main.o
+          endif
+        else
+          LOPT = -lm -lz
+        endif
+
         ifeq ($(API),sdl)
           LOPT += $(shell sdl-config --libs) -lSDL_image
           ifneq ($(NO_X11),1)
@@ -1198,6 +1218,12 @@ $(OBJDIR)/6502.d:	CFLAGS += -DCPU_6502_STATIC -DCPU_6502_USE_LOCAL_HEADER -DCPU_
 
 $(OBJ):	$(CFLAGS_CACHE)
 
+$(OBJDIR)/%.d :	%.c
+	@$(MKDIR) -p $(@D)
+	$(CC) $(COPT) $(CFLAGS) $(DEPFLAGS) -o $@ $<
+
+depend:	$(DEP)
+
 $(OBJDIR)/%.o : %.c
 	@$(MKDIR) -p $(@D)
 	$(CC) $(COPT) $(CFLAGS) -c $*.c -o $(OBJDIR)/$*.o
@@ -1205,12 +1231,6 @@ $(OBJDIR)/%.o : %.c
 $(OBJDIR)/%.o : %.m
 	@$(MKDIR) -p $(@D)
 	$(CC) $(COPT) -c $*.m -o $(OBJDIR)/$*.o
-
-depend:	$(DEP)
-
-$(OBJDIR)/%.d :	%.c
-	@$(MKDIR) -p $(@D)
-	$(CC) $(COPT) $(CFLAGS) $(DEPFLAGS) -o $@ $<
 
 # update the gfx2.rc Windows ressource file
 comma := ,
