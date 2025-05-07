@@ -51,7 +51,7 @@ SDLTTFARCH=$(SDLTTF).tar.gz
 SDLTTFURL=https://www.libsdl.org/projects/SDL_ttf/release/$(SDLTTFARCH)
 SDLTTFSHA256 = 724cd895ecf4da319a3ef164892b72078bd92632a5d812111261cde248ebcdb7
 # we cannot take the latest version automatically because SDL2DEVEL is not signed :(
-SDL2VER = 2.32.0
+SDL2VER = 2.32.6
 LATESTSDL2VER = $(shell curl -s -S https://api.github.com/repos/libsdl-org/SDL/releases | jq -r '.[].name' | grep -e '^2\.' | head -n1 )
 SDL2 = SDL2-$(SDL2VER)
 SDL2ARCH = $(SDL2).tar.gz
@@ -64,7 +64,7 @@ SDL2PATCHES += SDL2-NSOSVersion.patch
 endif
 SDL2DEVEL = SDL2-devel-$(SDL2VER)-mingw.tar.gz
 SDL2DEVELURL = https://www.libsdl.org/release/$(SDL2DEVEL)
-SDL2DEVELSHA256 = 5df6dcb76e55c508891d4b3fdb3710704c786858056af67249aca8790a54caf6
+SDL2DEVELSHA256 = 2c5ef8cf20491649f7726d76bbfe487ffdd83e2a3a594c37734ac18bdddfec6b
 SDL2IMAGEVER = $(LATESTSDL2IMAGEVER)
 SDL2IMAGE = SDL2_image-$(SDL2IMAGEVER)
 SDL2IMAGEARCH = $(SDL2IMAGE).tar.gz
