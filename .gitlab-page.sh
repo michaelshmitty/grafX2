@@ -35,6 +35,8 @@ echo "<li><a href=\"doxygen/html/\">doxygen</a></li>" >> ${OUTFILE}
 echo "<li><a href=\"htmldoc/\">htmldoc</a></li>" >> ${OUTFILE}
 echo "<li>Sources :" >> ${OUTFILE}
 echo "<a href=\"${CI_PROJECT_URL}/-/jobs/${LINUX_JOB_ID}/artifacts/raw/grafx2-${VERSION}-src.tgz\">grafx2-${VERSION}-src.tgz</a></li>" >> ${OUTFILE}
+echo "<li>Linux x86_64 <a href=\"https://appimage.org/\">AppImage</a> :" >> ${OUTFILE}
+echo "<a href=\"${CI_PROJECT_URL}/-/jobs/${LINUX_JOB_ID}/artifacts/raw/GrafX2-${VERSION}-x86_64.AppImage\">GrafX2-${VERSION}-x86_64.AppImage</a></li>" >> ${OUTFILE}
 if [ -n "${WIN32_JOB_ID}" ] ; then
 echo "<li>Windows installer (win32 API) :" >> ${OUTFILE}
 echo "<a href=\"${CI_PROJECT_URL}/-/jobs/${WIN32_JOB_ID}/artifacts/raw/install/grafx2-win32-${VERSION}.win32.exe\">grafx2-win32-${VERSION}.win32.exe</a></li>" >> ${OUTFILE}

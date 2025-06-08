@@ -103,7 +103,7 @@ char * Get_program_directory(const char * argv0)
   #elif defined(__FreeBSD__)
   #define SELF_PATH "/proc/curproc/file"
   #endif
-  if (argv0[0]!='/')
+  if (strstr(argv0, "/") == NULL)
   {
     ssize_t path_len;
     char path[PATH_MAX];
