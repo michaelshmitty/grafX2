@@ -150,18 +150,18 @@ from the 3rdparty/ directory.
 == Windows using MSYS2 ==
 
 This is how to build on Windows using MSYS2 tools and libraries, for the SDL2 variant.
-This sets up all the required libraries for SDL, and the version 5.3 of LUA. Tested on windows 11, 64-bit PC. 
+This sets up all the required libraries for SDL, and currently version 5.4 of LUA. Tested on windows 11, 64-bit PC. 
 
 https://www.msys2.org/
 Download and run the installer, at the time of writing it is : https://github.com/msys2/msys2-installer/releases/download/2025-06-22/msys2-x86_64-20250622.exe
 Find and run the shortcut "MSYS2 MINGW64" - Make sure that the prompt says (yourname) MINGW64 ~, not (yourname) MSYS ~
 In this console, run
-pacman -S base-devel mingw-w64-x86_64-gcc mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_image mingw-w64-x86_64-SDL2_ttf mingw-w64-x86_64-lua53 mingw-w64-x86_64-gdb
+  pacman -S base-devel mingw-w64-x86_64-gcc mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_image mingw-w64-x86_64-SDL2_ttf mingw-w64-x86_64-lua mingw-w64-x86_64-gdb
 If you also need GIT, run
-pacman -S git
+  pacman -S git
 
 Now from this console you can navigate to the src directory and type
-make API=sdl2
+  make API=sdl2
 On success the executable is bin/grafx2-sdl2.exe
 
 == Atari TOS machines ==
