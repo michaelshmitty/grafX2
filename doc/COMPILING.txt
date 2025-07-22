@@ -136,7 +136,7 @@ see https://devkitpro.org/wiki/devkitPro_pacman
 To compile a switch executable, type
 	make SWITCH=1
 
-== Windows ==
+== Windows cross-compilation ==
 
 It is also possible to compile from linux, with this command :
  $ make WIN32CROSS=1 [API=win32]
@@ -147,93 +147,25 @@ You will probably first need to build dependencies by running
  $ make WIN32CROSS=1
 from the 3rdparty/ directory.
 
+== Windows using MSYS2 ==
 
-Here is a list of the resources used to build the Windows version:
+This is how to build on Windows using MSYS2 tools and libraries, for the SDL2 variant.
+This sets up all the required libraries for SDL, and the version 5.3 of LUA. Tested on windows 11, 64-bit PC. 
 
-4DOS
-  with an alias make=mingw32-make
+https://www.msys2.org/
+Download and run the installer, at the time of writing it is : https://github.com/msys2/msys2-installer/releases/download/2025-06-22/msys2-x86_64-20250622.exe
+Find and run the shortcut "MSYS2 MINGW64" - Make sure that the prompt says (yourname) MINGW64 ~, not (yourname) MSYS ~
+In this console, run
+pacman -S base-devel mingw-w64-x86_64-gcc mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_image mingw-w64-x86_64-SDL2_ttf mingw-w64-x86_64-lua53 mingw-w64-x86_64-gdb
+If you also need GIT, run
+pacman -S git
 
-MSYS
-  installed in C:\MSYS
-
-Mingw
-  installed in C:\MSYS\mingw
-
-SDL:
-  SDL-devel-1.2.13-mingw32.tar.gz
-  Uncompress in temporary directory
-  make
-  make install (no effect?)
-  Headers are in /usr/mingw/include/SDL, copy them to /usr/include/SDL
-
-Zlib:
-  http://gnuwin32.sourceforge.net/downlinks/zlib.php
-  zlib-1.2.3.exe
-  Install in c:\msys\mingw
-  
-Libpng
-  Requires: Zlib
-  http://www.mirrorservice.org/sites/download.sourceforge.net/pub/sourceforge/l/li/libpng/
-  libpng-1.4.2.tar.gz (Before June 2010, we were using libpng-1.0.23.tar.gz)
-  Uncompress in temporary directory
-  ./configure
-  make
-  make install (long)
-  Files created in /usr/local/include and /usr/local/lib ....
-  
-libjpeg (optional - improves SDL_image with JPEG reading)
-  http://www.mirrorservice.org/sites/download.sourceforge.net/pub/sourceforge/l/project/li/libjpeg/libjpeg/
-  jpegsr6.zip
-  Uncompress in temporary directory
-  ./configure --enable-shared
-  make
-  (make install doesn't work. Copy jpeglib.h, jmorecfg.h, jconfig.h in include, and libjpeg.a in lib)
-  
-libtiff (optional - improves SDL_image with TIFF reading)
-  ftp://ftp.sgi.com/graphics/tiff/
-  tiff-v3.4-tar.gz
-  Uncompress in temporary directory
-  ./configure i686-pc-mingw32
-  make
-  Don't use 'make install', copy tiff.h libtiff.a manually instead.
-  
-SDL_image:
-  Requires: Libpng
-  Requires optionally: libtiff
-  Requires optionally: libjpeg
-  http://www.mirrorservice.org/sites/download.sourceforge.net/pub/sourceforge/l/li/libsdl/
-  SDL_image-1.2.8.zip
-  Uncompress in temporary directory
-  ./configure
-  Check in the messages that png worked
-  Optionally check if jpeg worked too
-  Optionally check if tiff worked too
-  make
-  make install prefix=/usr/mingw
-  
-FreeType:
-  http://www.mirrorservice.org/sites/download.sourceforge.net/pub/sourceforge/m/mi/mingw-cross/
-  mingw-freetype-2.3.7-2
-  Uncompress in c:/mwsys/mingw
-  
-SDL_ttf:
-  No mingw package
-  http://www.mirrorservice.org/sites/download.sourceforge.net/pub/sourceforge/l/li/libsdl/
-  SDL_ttf-2.0.9-win32.zip for DLLs: libfreetype-6.dll, SDL_ttf.dll, zlib1.dll
-  SDL_ttf-2.0.9.tar.gz
-
-Lua:
-  (optional)
-  http://www.lua.org/ftp/lua-5.2.1.tar.gz
-  Uncompress in temporary directory
-  Use sh shell
-  make mingw
-  (make install doesn't work, even with prefix)
-  Copy luaconf.h, lualib.h, lua.h, lauxlib.h to c:\msys\mingw\include
-  Copy liblua.a to c:\msys\mingw\lib
-  Copy lua51.dll to c:\msys\mingw\bin
+Now from this console you can navigate to the src directory and type
+make API=sdl2
+On success the executable is bin/grafx2-sdl2.exe
 
 == Atari TOS machines ==
+
 The Atari build is very similar to the Linux one. The build might work on native machine with gcc 4.3> compiler, 
 but it wasn't tested. You can also build binary for Coldfire based machines(e.g. Firebee) by 
 replacing '-m68020-60' in makefile to '-mcpu=5475'.

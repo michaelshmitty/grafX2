@@ -138,7 +138,8 @@ ifdef COMSPEC
   LOPT += -lmpr
   LOPT += -ltiff
   LOPT += -lpng -lz
-  LUALOPT = -llua
+  LUALOPT = -llua5.3
+  LUACOPT = -I$(PKG_CONFIG_SYSTEM_INCLUDE_PATH)/lua5.3
   OBJDIR = ../obj/win32-$(API)
   # Resources (icon)
   WINDRES = windres.exe
