@@ -180,7 +180,7 @@ void Tag_shades(word selection_start,word selection_end)
           Block(x_pos,y_pos,Menu_factor_X<<2,Menu_factor_Y<<1,MC_Light);
       }
     }
-    Update_window_area(8,131,64<<2,8<<3);
+  Update_window_area(8,131,64<<2,8<<3);
 }
 
 
