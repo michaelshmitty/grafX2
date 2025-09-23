@@ -117,7 +117,10 @@ void Screen_FillRect(int x, int y, int w, int h, byte color)
   SDL_FillRect(Screen_SDL,&rectangle,color);
 }
 
+#if defined(USE_SDL2)
+// used in GFX2_Set_mode() and GFX2_UpdateScreen()
 static SDL_Rect render_dstrect;
+#endif
 
 /// Sets the new screen/window dimensions.
 void GFX2_Set_mode(int *width, int *height, int fullscreen)
@@ -833,6 +836,9 @@ int GFX2_MessageBox(const char * text, const char * caption, unsigned int type)
   // CFUserNotificationDisplayAlert() returns 0 on success
   return (r == 0);
 #else
+  (void)text; // unused
+  (void)caption; // unused
+  (void)type; // unused
   return 0;
 #endif
 }
