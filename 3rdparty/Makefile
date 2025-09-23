@@ -534,6 +534,7 @@ $(PREFIX)/lib/libfreetype.a:	$(FREETYPE)/.ok
 	$(MKDIR) $(FREETYPE)/build$(PLATFORMDIR)
 	cd $(FREETYPE)/build$(PLATFORMDIR) && ../configure --build=$(BUILD) --host=$(HOST) \
 	  --prefix=$(PREFIX) --enable-freetype-config \
+	  $(if $(ATARICROSS), --with-harfbuzz=no) \
 	  PKG_CONFIG_LIBDIR=$(PREFIX)/lib/pkgconfig CC="$(CC) $(LDFLAGS)"
 	cd $(FREETYPE)/build$(PLATFORMDIR) && $(MAKE) && $(MAKE) install
 ifdef WIN32
