@@ -603,7 +603,9 @@ int Init_program(int argc,char * argv[])
   char * directories[2] = {NULL, NULL};
   const char * videomode = NULL;
   int cmdline_pixelratio = -1;
+#ifdef USE_SDL2
   char * envvar_val = NULL;
+#endif
 
   #if defined(__MINT__)
   printf("===============================\n");
