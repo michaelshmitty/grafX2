@@ -85,6 +85,7 @@
 #elif defined(__macosx__)
 #import <CoreFoundation/CoreFoundation.h>
 #import <sys/param.h>
+extern char* getMacosUserFolder(void);
 #elif defined(__FreeBSD__)
 #include <sys/param.h>
 #endif
@@ -648,7 +649,6 @@ int Init_program(int argc,char * argv[])
   Config_directory = Get_config_directory(program_directory);
 #ifdef __macosx__
   // use user folder on macOS
-  extern char* getMacosUserFolder(void);
   Main.selector.Directory = getMacosUserFolder();
 #else
   // Get current directory
