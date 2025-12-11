@@ -163,9 +163,23 @@ else
   ifeq ($(PLATFORM),Darwin)
     DARWINVER = $(shell gcc -dumpmachine | sed 's/.*darwin\([0-9]*\).*/\1/' )
     ifeq (greater, $(shell [ $(DARWINVER) -gt 11 ] && echo "greater"))
-      # Just use "homebrew" on Mac OS X Mountain Lion (10.8) and above. 
-      # Use "brew install sdl2 sdl2_image sdl2_ttf lua" to install prereqs.
-      # Use "make API=sdl2" to build, then "make API=sdl2 install" to install.
+      # Use "homebrew" on Mac OS X Mountain Lion (10.8) and above because you
+      # need to use an Xcode project to create a signed GUI application.
+      #
+      # To install the libraries needed to build grafx2 ...
+      #   brew install sdl2 sdl2_image sdl2_ttf lua
+      #
+      # To build and install into the /usr/local/ directory on an Apple Silicon Mac ...
+      #   sudo make
+      #   sudo make install
+      #
+      # To build and install into the /usr/local/ directory on an Intel Mac ...
+      #   make
+      #   make install
+      #
+      # To build and install into your home directory ...
+      #   make PREFIX="$HOME"
+      #   make PREFIX="$HOME" install
       PLATFORM = homebrew
     endif
   endif
@@ -484,6 +498,36 @@ endif
     OBJDIR = ../obj/syllable
     FCLOPT = 
   else
+  ifeq ($(PLATFORM),homebrew) #12
+    #Modern macOS using "homebrew"
+    DELCOMMAND = rm -rf
+    MKDIR = mkdir -p
+    RMDIR = rmdir
+    CP = cp
+    ZIP = zip
+    PLATFORMFILES = ../share/grafx2/gfx2.png
+    PLATFORMOBJ += pasteboard.o
+    PLATFORMOBJ += SDL2Main.o
+    API = sdl2
+    OBJDIR = ../obj/brew
+    BIN = ../bin/grafx2
+    TESTSBIN = ../bin/tests
+    COPT = -W -Wall -Wdeclaration-after-statement -std=c99 -g -O$(OPTIM) -D_DARWIN_C_SOURCE -D__macosx__ -DUSE_FC -DENABLE_FILENAMES_ICONV -DNO_X11
+    ifeq ($(HOMEBREW_PREFIX),)
+      ifeq ($(shell uname -m), x86_64)
+        HOMEBREW_PREFIX = /usr/local
+      else
+        HOMEBREW_PREFIX = /opt/homebrew
+      endif
+    endif
+    ifeq ($(HOMEBREW_PREFIX), /opt/homebrew)
+      COPT += -I$(HOMEBREW_PREFIX)/include
+    endif
+    COPT += $(shell sdl2-config --cflags)
+    COPT += $(shell $(PKG_CONFIG) --cflags lua)
+    COPT += $(shell $(PKG_CONFIG) --cflags libpng)
+    LOPT = -Wl,-framework,Cocoa -lz $(shell sdl2-config --libs) -lSDL2_image -lSDL2_ttf -lpng16 -ltiff -llua -lfontconfig -liconv
+  else
     # Finally, the default rules that work fine for most unix/gcc systems, linux and freebsd are tested.
     # Linux and FreeBSD specific (default rules)
     DELCOMMAND = rm -rf
@@ -687,17 +731,7 @@ endif
           COPT += -D_NETBSD_SOURCE
         endif
 
-        ifeq ($(PLATFORM), homebrew)
-          COPT += -D_DARWIN_C_SOURCE -D__macosx__
-          LOPT = -Wl,-framework,Cocoa -lz
-          PLATFORMOBJ += pasteboard.o
-          ifeq ($(API),sdl2)
-            PLATFORMOBJ += SDL2Main.o
-          endif
-        else
-          LOPT = -lm -lz
-        endif
-
+        LOPT = -lm -lz
         ifeq ($(API),sdl)
           LOPT += $(shell sdl-config --libs) -lSDL_image
           ifneq ($(NO_X11),1)
@@ -743,6 +777,7 @@ endif
       endif
     endif
 
+  endif
   endif
   endif
   endif
@@ -1286,11 +1321,13 @@ install : $(BIN)
 	  test -d $(DESTDIR)$(datadir)/`dirname $$f` || $(MKDIR) $(DESTDIR)$(datadir)/`dirname $$f` ; \
 	  $(CP) "../share/$$f" "$(DESTDIR)$(datadir)/$$f" ; \
 	done
+ifneq ($(PLATFORM),homebrew)
 	# Icon and desktop file for debian
 	$(CP) ../misc/unix/grafx2.desktop $(DESTDIR)$(datadir)/applications/
 	$(CP) ../misc/unix/eu.grafx2.grafx2.metainfo.xml $(DESTDIR)$(datadir)/metainfo/
 	$(CP) ../misc/unix/grafx2.xpm $(DESTDIR)$(pixmapdir)
 	$(CP) ../share/icons/grafx2.svg $(DESTDIR)$(pixmapdir)
+endif
 	@echo Install complete
   
 # Linux uninstallation of the program
@@ -1298,11 +1335,16 @@ uninstall :
 	$(DELCOMMAND) $(DESTDIR)$(bindir)/grafx2
 	$(DELCOMMAND) $(DESTDIR)$(datadir)/grafx2/gfx2def.ini
 	$(DELCOMMAND) $(DESTDIR)$(datadir)/grafx2/gfx2.gif
+	$(DELCOMMAND) $(DESTDIR)$(datadir)/grafx2/gfx2.png
 	$(DELCOMMAND) $(DESTDIR)$(datadir)/grafx2/fonts/*
 	$(if $(wildcard $(DESTDIR)$(datadir)/grafx2/fonts),$(RMDIR) $(DESTDIR)$(datadir)/grafx2/fonts,)
 	$(DELCOMMAND) $(SKIN_FILES:../share%=$(DESTDIR)$(datadir)%)
 	$(if $(wildcard $(DESTDIR)$(datadir)/grafx2/skins),$(RMDIR) $(DESTDIR)$(datadir)/grafx2/skins,)
 	$(DELCOMMAND) $(SCRIPT_FILES:../share%=$(DESTDIR)$(datadir)%)
+	$(if $(wildcard $(DESTDIR)$(datadir)/grafx2/scripts/samples/picture),$(RMDIR) $(DESTDIR)$(datadir)/grafx2/scripts/samples/picture/thomson/lib,)
+	$(if $(wildcard $(DESTDIR)$(datadir)/grafx2/scripts/samples/picture),$(RMDIR) $(DESTDIR)$(datadir)/grafx2/scripts/samples/picture/thomson,)
+	$(if $(wildcard $(DESTDIR)$(datadir)/grafx2/scripts/samples/picture),$(RMDIR) $(DESTDIR)$(datadir)/grafx2/scripts/samples/picture/others-8bit/lib,)
+	$(if $(wildcard $(DESTDIR)$(datadir)/grafx2/scripts/samples/picture),$(RMDIR) $(DESTDIR)$(datadir)/grafx2/scripts/samples/picture/others-8bit,)
 	$(if $(wildcard $(DESTDIR)$(datadir)/grafx2/scripts/samples/picture),$(RMDIR) $(DESTDIR)$(datadir)/grafx2/scripts/samples/picture,)
 	$(if $(wildcard $(DESTDIR)$(datadir)/grafx2/scripts/samples/palette),$(RMDIR) $(DESTDIR)$(datadir)/grafx2/scripts/samples/palette,)
 	$(if $(wildcard $(DESTDIR)$(datadir)/grafx2/scripts/samples/libs),$(RMDIR) $(DESTDIR)$(datadir)/grafx2/scripts/samples/libs,)
@@ -1313,11 +1355,13 @@ uninstall :
 	$(if $(wildcard $(DESTDIR)$(datadir)/grafx2/scripts/libs),$(RMDIR) $(DESTDIR)$(datadir)/grafx2/scripts/libs,)
 	$(if $(wildcard $(DESTDIR)$(datadir)/grafx2/scripts),$(RMDIR) $(DESTDIR)$(datadir)/grafx2/scripts,)
 	$(if $(wildcard $(DESTDIR)$(datadir)/grafx2),$(RMDIR) $(DESTDIR)$(datadir)/grafx2,)
+ifneq ($(PLATFORM),homebrew)
 	# Icon and desktop file for debian
 	$(DELCOMMAND) $(DESTDIR)$(datadir)/applications/grafx2.desktop
 	$(DELCOMMAND) $(DESTDIR)$(datadir)/metainfo/eu.grafx2.grafx2.metainfo.xml
 	$(DELCOMMAND) $(DESTDIR)$(pixmapdir)/grafx2.xpm
 	$(DELCOMMAND) $(DESTDIR)$(pixmapdir)/grafx2.svg
+endif
 	@echo Uninstall complete
 
 endif
