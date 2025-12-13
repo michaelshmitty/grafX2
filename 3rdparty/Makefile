@@ -573,9 +573,10 @@ $(JPEGDIR)/.ok:	archives/$(JPEGARCH)
 $(PREFIX)/lib/libtiff.a:	$(PREFIX)/lib/libjpeg.a
 $(PREFIX)/lib/libtiff.a:	$(PREFIX)/lib/libz.a
 
+# -std=c99 is forced because of https://gitlab.com/libtiff/libtiff/-/issues/761
 $(PREFIX)/lib/libtiff.a:	$(LIBTIFF)/.ok
 	$(MKDIR) $(LIBTIFF)/_build$(PLATFORMDIR)
-	cd $(LIBTIFF)/_build$(PLATFORMDIR) && CC="$(CC) $(LDFLAGS)" \
+	cd $(LIBTIFF)/_build$(PLATFORMDIR) && CC="$(CC) $(LDFLAGS)" CFLAGS=-std=c99 \
 	  ../configure --prefix=$(PREFIX) \
 	  --host=$(HOST) --build=$(BUILD) \
 	  --with-zlib-include-dir=$(PREFIX)/include --with-zlib-lib-dir=$(PREFIX)/lib \
