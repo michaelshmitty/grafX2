@@ -1,0 +1,16 @@
+--- zlib-1.3.2/configure.orig	2026-02-17 10:13:25.000000000 +0100
++++ zlib-1.3.2/configure	2026-03-20 00:38:50.998682000 +0100
+@@ -245,7 +245,12 @@
+ if test "$gcc" -eq 1 && ($cc -c $test.c) >> configure.log 2>&1; then
+   echo ... using gcc >> configure.log
+   CC="$cc"
+-  CFLAGS="${CFLAGS--O3} -fPIC"
++  case "$cc" in
++    m68k-atari-mint-gcc)
++      CFLAGS="${CFLAGS--O3}" ;;
++    *)
++      CFLAGS="${CFLAGS--O3} -fPIC" ;;
++  esac
+   SFLAGS="${CFLAGS--O3}"
+   if test "$ARCHS"; then
+     CFLAGS="${CFLAGS} ${ARCHS}"

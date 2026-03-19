@@ -120,6 +120,7 @@ ZLIBSIG=$(ZLIBARCH).asc
 ZLIBURL=https://www.zlib.net/$(ZLIBARCH)
 ZLIBSIGURL=$(ZLIBURL).asc
 ZLIBURLALT=http://downloads.sourceforge.net/project/libpng/zlib/$(ZLIBVER)/$(ZLIBARCH)
+ZLIBPATCHES=zlib-1.3.2-configure-atari.patch
 FREETYPEVER=$(LATESTFREETYPEVER)
 FREETYPE=freetype-$(FREETYPEVER)
 FREETYPEARCH=$(FREETYPE).tar.gz
