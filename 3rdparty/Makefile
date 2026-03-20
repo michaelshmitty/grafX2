@@ -86,11 +86,12 @@ LIBPNGURL = https://download.sourceforge.net/libpng/$(LIBPNGARCH)
 LIBPNGURLALT = http://sourceforge.mirrorservice.org/l/project/project/li/libpng/libpng16/$(LIBPNGVER)/$(LIBPNGARCH)
 LIBPNGSHA256 = 4b0abab6d219e95690ebe4db7fc9aa95f4006c83baaa022373c0c8442271283d
 LATESTLIBPNGVER = $(shell curl -s -S http://www.libpng.org/pub/png/libpng.html | grep "current public release" | sed 's/.*libpng \([0-9.]*\).*/\1/' )
-JPEGVER = 9f
-LATESTJPEGVER = $(shell curl -s -S http://www.ijg.org/ |grep "current version" | sed 's/.*release \([0-9]*[a-z]\) .*/\1/' )
+JPEGVER = 10
+LATESTJPEGVER = $(shell curl -s -S http://www.ijg.org/ |grep "current version" | sed 's/.*release \([0-9a-z]*\) .*/\1/' )
 JPEGDIR = jpeg-$(JPEGVER)
 JPEGARCH = jpegsrc.v$(JPEGVER).tar.gz
 JPEGURL = https://www.ijg.org/files/$(JPEGARCH)
+JPEGSHA256 = 8b9eaa13242690ebd03e1728ab1edf97a81a78ed6e83624d493655f31ac95ab5
 # http://www.simplesystems.org/libtiff/
 # https://gitlab.com/libtiff/libtiff
 LIBTIFFVER = $(LATESTLIBTIFFVER)
@@ -675,6 +676,7 @@ gpgkeys/imported.ok:	$(filter-out gpgkeys/imported.ok,$(wildcard gpgkeys/*))
 archives/$(JPEGARCH):
 	@$(MKDIR) $(@D)
 	cd $(@D) && $(GETURL) $(JPEGURL)
+	@[ "`$(SHA256CMD) < $@`" = "$(JPEGSHA256)" ] || ( $(RM) $@ && echo "$@ SHA256 mismatch !" && false )
 	@echo $(JPEGURL) > JPEG.source
 
 archives/$(REDCODE6502ARCH):
