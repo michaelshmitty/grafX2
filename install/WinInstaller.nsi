@@ -5,7 +5,11 @@
 !define API sdl
 
 !define FREETYPEDLL libfreetype-6.dll
+!if /FileExists ..\bin\libjpeg-9.dll
 !define JPEGDLL     libjpeg-9.dll
+!else if /FileExists ..\bin\libjpeg-10.dll
+!define JPEGDLL     libjpeg-10.dll
+!endif
 !define PNGDLL      libpng16-16.dll
 !if /FileExists ..\bin\libtiff-5.dll
 !define TIFFDLL     libtiff-5.dll
