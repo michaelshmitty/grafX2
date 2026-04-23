@@ -612,7 +612,7 @@ int L_DrawCircle(lua_State* L)
 
 int L_DrawDisk(lua_State* L)
 {
-  int center_x, center_y, diameter, c, r, even;
+  int center_x, center_y, diameter, c, r, even, color;
   long circle_limit;
   short x_pos,y_pos;
   short min_x,max_x,min_y,max_y;
@@ -646,8 +646,13 @@ int L_DrawDisk(lua_State* L)
     for (x_pos=min_x;x_pos<=max_x;x_pos++)
     {
       short x=(x_pos-center_x)*2-even;
-      if (x*x+y*y <= circle_limit)
-        Pixel_in_current_screen(x_pos,y_pos,c);
+      if (x*x+y*y <= circle_limit) {
+        if (c < 0)
+          color = Effect_function(x_pos, y_pos, -c);
+        else
+          color = c;
+        Pixel_in_current_screen(x_pos,y_pos,color);
+      }
     }
   }
 
@@ -1966,6 +1971,72 @@ int L_SelectLayer(lua_State* L)
 }
 
 
+int L_FirstFrame(lua_State* L)
+{
+  int nb_args=lua_gettop(L);
+
+  if (Main.current_layer > 0)
+    Layer_activate(0, LEFT_SIDE);
+
+  return 0;
+}
+
+
+int L_PrevFrame(lua_State* L)
+{
+  int nb_args=lua_gettop(L);
+
+  if (Main.backups->Pages->Nb_layers>1)
+  {
+    if (Main.current_layer==0)
+      Layer_activate(Main.backups->Pages->Nb_layers-1,LEFT_SIDE);
+    else
+      Layer_activate(Main.current_layer-1,LEFT_SIDE);
+  }
+
+  return 0;
+}
+
+
+int L_NextFrame(lua_State* L)
+{
+  int nb_args=lua_gettop(L);
+
+  int createIt;
+  LUA_ARG_BOOL(1, "nextframe", createIt);
+
+  {
+    if (Main.current_layer==Main.backups->Pages->Nb_layers-1) {
+      if (createIt) {
+        Update_depth_buffer();
+        Backup_layers(LAYER_NONE);
+        Add_layer(Main.backups, Main.current_layer+1);
+        Layer_activate(Main.current_layer+1,LEFT_SIDE);
+		printf("current layer is now %d\n", Main.current_layer+1);
+        Display_layerbar();
+        End_of_modification();
+      } else if (Main.backups->Pages->Nb_layers>1) {
+        Layer_activate(0,LEFT_SIDE);
+      }
+    } else if (Main.backups->Pages->Nb_layers>1)
+      Layer_activate(Main.current_layer+1,LEFT_SIDE);
+  }
+
+  return 0;
+}
+
+
+int L_LastFrame(lua_State* L)
+{
+  int nb_args=lua_gettop(L);
+
+  if (Main.current_layer < (Main.backups->Pages->Nb_layers-1))
+    Layer_activate((Main.backups->Pages->Nb_layers-1),LEFT_SIDE);
+
+  return 0;
+}
+
+
 int L_FinalizePicture(lua_State* L)
 {
   int nb_args=lua_gettop(L);
@@ -2467,6 +2538,12 @@ void Run_script(const char *script_subdirectory, const char *script_filename)
   lua_register(L,"getlayercount",L_GetLayerCount);
   lua_register(L,"getsparelayercount",L_GetSpareLayerCount);
 
+  // animation
+  lua_register(L,"firstframe",L_FirstFrame);
+  lua_register(L,"nextframe",L_NextFrame);
+  lua_register(L,"prevframe",L_PrevFrame);
+  lua_register(L,"lastframe",L_LastFrame);
+
   // ui
   lua_register(L,"inputbox",L_InputBox);
   lua_register(L,"messagebox",L_MessageBox);
@@ -2517,6 +2594,8 @@ void Run_script(const char *script_subdirectory, const char *script_filename)
   Main_backup_page = Main.backups->Pages;
   Main_backup_screen = Main_screen;
   Backup_the_spare(LAYER_ALL);
+  Update_FX_feedback(Config.FX_Feedback);
+  Shade_table=Shade_table_left;
 
   Palette_has_changed=0;
   Brush_was_altered=0;
