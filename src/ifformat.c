@@ -655,6 +655,84 @@ static void LBM_Decode(T_IO_Context * context, FILE * file, byte compression, by
   }
 }
 
+
+/// Sets 32 upper colors of EHB palette
+static void IFF_Set_EHB_Palette(T_Components * palette)
+{
+  int i, j;            /// 32 colors in the palette.
+  for (i=0; i<32; i++) /// The next 32 colors are the same with values divided by 2
+  {
+    j=i+32;
+    palette[j].R = palette[i].R>>1;
+    palette[j].G = palette[i].G>>1;
+    palette[j].B = palette[i].B>>1;
+  }
+}
+
+
+// Read the CMAP chunk
+// Split into a separate function just to handle the case where the CMAP is misaligned and located
+// after the BODY (Neochrome 2.24).
+static void CMAP_chunk_decode(T_IO_Context* context, FILE * IFF_file, dword section_size,
+    dword* nb_colors, int current_frame, word frame_count, byte* Image_HAM, byte* bpp,
+    dword AmigaViewModes, T_IFF_Header header)
+{
+  *nb_colors = section_size/3;
+
+  if (*nb_colors > 256)
+  {
+    File_error = 1;
+    return;
+  }
+  GFX2_Log(GFX2_DEBUG, "IFF CMAP : %u colors (header.BitPlanes=%u)\n", *nb_colors, header.BitPlanes);
+
+  if (current_frame != 0)
+    GFX2_Log(GFX2_WARNING, "IFF : One CMAP per frame is not supported (frame #%u/%u)\n", current_frame + 1, frame_count);
+  if ((header.BitPlanes==6 && *nb_colors==16) || (header.BitPlanes==8 && *nb_colors==64))
+  {
+    *Image_HAM=header.BitPlanes;
+    bpp = 3 * (header.BitPlanes - 2); // HAM6 = 12bpp, HAM8 = 18bpp
+  }
+
+  if (Read_bytes(IFF_file,context->Palette,3 * *nb_colors))
+  {
+    section_size -= 3 * *nb_colors;
+    if (*nb_colors <= 64)
+    {
+      unsigned int i;
+      int is_4bits_colors = 1;  // recoil also checks that header.Pad1 is not 0x80
+      for(i = 0; i < *nb_colors && is_4bits_colors; i++)
+      {
+        is_4bits_colors = is_4bits_colors && ((context->Palette[i].R & 0x0f) == 0)
+                                          && ((context->Palette[i].G & 0x0f) == 0)
+                                          && ((context->Palette[i].B & 0x0f) == 0);
+      }
+      if (is_4bits_colors)    // extend 4bits per component color palettes to 8bits per component
+        for(i = 0; i < *nb_colors; i++)
+        {
+          context->Palette[i].R |= (context->Palette[i].R >> 4);
+          context->Palette[i].G |= (context->Palette[i].G >> 4);
+          context->Palette[i].B |= (context->Palette[i].B >> 4);
+        }
+    }
+    if (((*nb_colors==32) || (AmigaViewModes & 0x80)) && (header.BitPlanes==6))
+    {
+      IFF_Set_EHB_Palette(context->Palette); // This is a Extra Half-Brite (EHB) 64 color image.
+      *nb_colors = 64;
+    }
+
+    while(section_size > 0) // Read padding bytes
+    {
+      byte temp_byte;
+      if (Read_byte(IFF_file,&temp_byte))
+        File_error=20;
+      section_size--;
+    }
+  }
+  else
+    File_error=1;
+}
+
 /// Decode RAST chunk (from Atari ST pictures)
 static void RAST_chunk_decode(T_IO_Context * context, FILE * file, dword section_size, T_IFF_PCHG_Palette ** PCHG_palettes)
 {
@@ -715,19 +793,6 @@ static void RAST_chunk_decode(T_IO_Context * context, FILE * file, dword section
         prev_pal = new_pal;
       }
     }
-  }
-}
-
-/// Sets 32 upper colors of EHB palette
-static void IFF_Set_EHB_Palette(T_Components * palette)
-{
-  int i, j;            /// 32 colors in the palette.
-  for (i=0; i<32; i++) /// The next 32 colors are the same with values divided by 2
-  {
-    j=i+32;
-    palette[j].R = palette[i].R>>1;
-    palette[j].G = palette[i].G>>1;
-    palette[j].B = palette[i].B>>1;
   }
 }
 
@@ -1325,60 +1390,10 @@ void Load_IFF(T_IO_Context * context)
         }
         else if (memcmp(section, "CMAP", 4) == 0) // Colour MAP
         {
-          nb_colors = section_size/3;
-
-          if (nb_colors > 256)
-          {
-            File_error = 1;
-            break;
-          }
-          GFX2_Log(GFX2_DEBUG, "IFF CMAP : %u colors (header.BitPlanes=%u)\n", nb_colors, header.BitPlanes);
-
-          if (current_frame != 0)
-            GFX2_Log(GFX2_WARNING, "IFF : One CMAP per frame is not supported (frame #%u/%u)\n", current_frame + 1, frame_count);
-          if ((header.BitPlanes==6 && nb_colors==16) || (header.BitPlanes==8 && nb_colors==64))
-          {
-            Image_HAM=header.BitPlanes;
-            bpp = 3 * (header.BitPlanes - 2); // HAM6 = 12bpp, HAM8 = 18bpp
-          }
-
-          if (Read_bytes(IFF_file,context->Palette,3*nb_colors))
-          {
-            section_size -= 3*nb_colors;
-            if (nb_colors <= 64)
-            {
-              unsigned int i;
-              int is_4bits_colors = 1;  // recoil also checks that header.Pad1 is not 0x80
-              for(i = 0; i < nb_colors && is_4bits_colors; i++)
-              {
-                is_4bits_colors = is_4bits_colors && ((context->Palette[i].R & 0x0f) == 0)
-                                                  && ((context->Palette[i].G & 0x0f) == 0)
-                                                  && ((context->Palette[i].B & 0x0f) == 0);
-              }
-              if (is_4bits_colors)    // extend 4bits per component color palettes to 8bits per component
-                for(i = 0; i < nb_colors; i++)
-                {
-                  context->Palette[i].R |= (context->Palette[i].R >> 4);
-                  context->Palette[i].G |= (context->Palette[i].G >> 4);
-                  context->Palette[i].B |= (context->Palette[i].B >> 4);
-                }
-            }
-            if (((nb_colors==32) || (AmigaViewModes & 0x80)) && (header.BitPlanes==6))
-            {
-              IFF_Set_EHB_Palette(context->Palette); // This is a Extra Half-Brite (EHB) 64 color image.
-              nb_colors = 64;
-            }
-
-            while(section_size > 0) // Read padding bytes
-            {
-              if (Read_byte(IFF_file,&temp_byte))
-                File_error=20;
-              section_size--;
-            }
-          }
-          else
-            File_error=1;
-          if (context->Type == CONTEXT_PALETTE || context->Type == CONTEXT_PREVIEW_PALETTE)
+            CMAP_chunk_decode(context, IFF_file, section_size, &nb_colors, current_frame,
+                frame_count, &Image_HAM, &bpp, AmigaViewModes, header);
+          if (context->Type == CONTEXT_PALETTE || context->Type == CONTEXT_PREVIEW_PALETTE
+            || File_error != 0)
             break;  // stop once the palette is loaded
         }
         else if (memcmp(section,"CRNG",4) == 0)
@@ -1929,7 +1944,7 @@ void Load_IFF(T_IO_Context * context)
             // the chunk on word boundaries.
             fseek(IFF_file, section_size, SEEK_CUR);
             Read_bytes(IFF_file, section, 1);
-            if (section[0] == 'R')                  // we are good
+            if ((section[0] == 'R') || (section[0] == 'C'))                  // we are good
               Read_bytes(IFF_file, section + 1, 3); // read the remaining 3 bytes
             else                                    // skip 1 byte
               Read_bytes(IFF_file, section, 4);     // read 4 bytes
@@ -1940,6 +1955,12 @@ void Load_IFF(T_IO_Context * context)
               RAST_chunk_decode(context, IFF_file, rast_size, &PCHG_palettes);
               if (PCHG_palettes != NULL)
                 bpp = 12;
+            } else if (memcmp(section, "CMAP", 4) == 0)
+            {
+              dword cmap_size;
+              Read_dword_be(IFF_file, &cmap_size);
+              CMAP_chunk_decode(context, IFF_file, cmap_size, &nb_colors, current_frame,
+                frame_count, &Image_HAM, &bpp, AmigaViewModes, header);
             }
             fseek(IFF_file, offset, SEEK_SET);  // rewind
           }
