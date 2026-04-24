@@ -508,7 +508,7 @@ void Load_MOTO(T_IO_Context * context)
       Read_bytes(file,vram_couleur,file_size);
     }
     fclose(file);
-    GFX2_Log(GFX2_DEBUG, "MO/TO: %s,%s file_size=%ld n_colors=%d\n", context->File_name, filename, file_size, n_colors);
+    GFX2_Log(GFX2_DEBUG, "MO/TO: %s file_size=%ld n_colors=%d\n", context->File_name, file_size, n_colors);
     for (x = 0; x < n_colors; x++)
     {
       // 1 byte Blue (4 lower bits)

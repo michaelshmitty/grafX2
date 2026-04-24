@@ -691,7 +691,7 @@ static void CMAP_chunk_decode(T_IO_Context* context, FILE * IFF_file, dword sect
   if ((header.BitPlanes==6 && *nb_colors==16) || (header.BitPlanes==8 && *nb_colors==64))
   {
     *Image_HAM=header.BitPlanes;
-    bpp = 3 * (header.BitPlanes - 2); // HAM6 = 12bpp, HAM8 = 18bpp
+    *bpp = 3 * (header.BitPlanes - 2); // HAM6 = 12bpp, HAM8 = 18bpp
   }
 
   if (Read_bytes(IFF_file,context->Palette,3 * *nb_colors))
