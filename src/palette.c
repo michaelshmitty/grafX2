@@ -2002,19 +2002,6 @@ void Button_Palette(int btn)
             Reduce_palette(&used_colors, reduce_colors_number, working_palette,
                     color_usage);
 
-            if ((Config.Safety_colors) && (used_colors<4))
-            {
-                memcpy(temp_palette, Main.palette, sizeof(T_Palette));
-                memcpy(Main.palette, working_palette, sizeof(T_Palette));
-                Set_nice_menu_colors(color_usage, 0);
-                memcpy(working_palette, Main.palette, sizeof(T_Palette));
-                memcpy(Main.palette, temp_palette, sizeof(T_Palette));
-            }
-
-            Set_palette(working_palette); // On définit la nouvelle palette
-            Draw_all_palette_sliders(red_slider, green_slider, blue_slider,
-                    working_palette, block_start, block_end);
-            memcpy(temp_palette, working_palette, sizeof(T_Palette));
             Palette_edit_step(); // Disable Undo
             End_of_modification();
             need_to_remap = 1;
@@ -2048,18 +2035,6 @@ void Button_Palette(int btn)
             working_palette[i].B=backup_palette[temp_color].B;
           }
         }
-
-        if ((Config.Safety_colors) && (used_colors<4) && (block_end==block_start))
-        {
-          memcpy(temp_palette,Main.palette,sizeof(T_Palette));
-          memcpy(Main.palette,working_palette,sizeof(T_Palette));
-          Set_nice_menu_colors(color_usage,0);
-          memcpy(working_palette,Main.palette,sizeof(T_Palette));
-          memcpy(Main.palette,temp_palette,sizeof(T_Palette));
-        }
-
-        Set_palette(working_palette);
-        Draw_all_palette_sliders(red_slider,green_slider,blue_slider,working_palette,block_start,block_end);
 
         need_to_remap=1;
         break;
@@ -2851,6 +2826,20 @@ void Button_Palette(int btn)
 
       if (need_to_remap)
       {
+
+        if ((Config.Safety_colors) && (used_colors<4))
+        {
+            memcpy(temp_palette, Main.palette, sizeof(T_Palette));
+            memcpy(Main.palette, working_palette, sizeof(T_Palette));
+            Set_nice_menu_colors(color_usage, 0);
+            memcpy(working_palette, Main.palette, sizeof(T_Palette));
+            memcpy(Main.palette, temp_palette, sizeof(T_Palette));
+        }
+        Set_palette(working_palette); // On définit la nouvelle palette
+        Draw_all_palette_sliders(red_slider, green_slider, blue_slider,
+                working_palette, block_start, block_end);
+        memcpy(temp_palette, working_palette, sizeof(T_Palette));
+
         Hide_cursor();
         Compute_optimal_menu_colors(working_palette);
 
