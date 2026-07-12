@@ -393,7 +393,10 @@ typedef struct
 typedef struct T_Image
 {
   byte * Pixels;
-  int Duration;
+  union {
+    int Duration; // For animation
+    int Locked; // For layers, prevents editing
+  };
 } T_Image;
 
 /// This is the data for one step of Undo/Redo, for one image.

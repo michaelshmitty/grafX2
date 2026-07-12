@@ -72,7 +72,7 @@ T_Page * New_page(int nb_layers)
     for (i=0; i<nb_layers; i++)
     {
       page->Image[i].Pixels = NULL;
-      page->Image[i].Duration = 100;
+      page->Image[i].Locked = 0;
     }
     page->Width=0;
     page->Height=0;

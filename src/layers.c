@@ -75,9 +75,14 @@ void Layer_activate(int layer, short side)
     }
     else
     {
-      // Left-click on any layer
-      Main.current_layer = layer;
-      Main.layers_visible |= 1<<layer;
+      if (Main.current_layer == layer) {
+        // Left click on current layer: lock/unlock
+        Main.backups->Pages->Image[layer].Locked = !Main.backups->Pages->Image[layer].Locked;
+      } else {
+        // Left-click on any other layer: activate it
+        Main.current_layer = layer;
+        Main.layers_visible |= 1<<layer;
+      }
     }
   }
   else
