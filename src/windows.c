@@ -553,6 +553,7 @@ void Display_layerbar(void)
       word x_pos=0;
       word y_pos;
       word sprite_index;
+      word sprite_button_index;
 
       if (Main.current_layer == current_button)
         sprite_index=1;
@@ -561,6 +562,12 @@ void Display_layerbar(void)
       else
         sprite_index=2;
 
+      // Special sprite for "locked" layers
+      if (Main.backups->Pages->Image[current_button].Locked) {
+        sprite_button_index = MAX_NB_LAYERS;
+      } else {
+        sprite_button_index = current_button;
+      }
 
       for (y_pos=0;y_pos<LAYER_SPRITE_HEIGHT;y_pos++)
       {
@@ -577,16 +584,12 @@ void Display_layerbar(void)
 
           for (;i>0; i--)
           {
-            Pixel_in_menu(MENUBAR_LAYERS, x_pos + x_off, y_pos, Gfx->Layer_sprite[sprite_index][current_button][y_pos][source_x]);
+            Pixel_in_menu(MENUBAR_LAYERS, x_pos + x_off, y_pos, Gfx->Layer_sprite[sprite_index][sprite_button_index][y_pos][source_x]);
             x_pos++;
           }
         }
         // Next line
         x_pos=0;
-      }
-
-      if (Main.backups->Pages->Image[current_button].Locked) {
-        Menu_display_icon_sprite(MENUBAR_LAYERS, x_pos + x_off + 1, y_pos - ICON_SPRITE_HEIGHT - 1, 0);
       }
 
       // Next button
@@ -1797,16 +1800,6 @@ void Window_display_icon_sprite(word x_pos,word y_pos,byte type)
       Pixel_in_window(x_pos+i,y_pos+j,Gfx->Icon_sprite[type][j][i]);
   Update_rect(ToWinX(x_pos),ToWinY(y_pos),ToWinL(ICON_SPRITE_WIDTH),ToWinH(ICON_SPRITE_HEIGHT));
 }
-
-void Menu_display_icon_sprite(int menubar, word x_pos,word y_pos,byte type)
-{
-  word i,j;
-
-  for (j=0; j<ICON_SPRITE_HEIGHT; j++)
-    for (i=0; i<ICON_SPRITE_WIDTH; i++)
-      Pixel_in_menu(menubar, x_pos+i,y_pos+j,Gfx->Icon_sprite[type][j][i]);
-}
-
 
 
 void Display_menu_palette_avoiding_window(byte * table)
@@ -3740,7 +3733,7 @@ static void Remap_menu_sprites(const T_Components * palette)
           Remap_pixel(&Gfx->Effect_sprite[k][j][i]);
     // Layers buttons
     for (l=0; l<3; l++)
-      for (k=0; k<16; k++)
+      for (k=0; k<MAX_NB_LAYERS+1; k++)
         for (j=0; j<LAYER_SPRITE_HEIGHT; j++)
           for (i=0; i<LAYER_SPRITE_WIDTH; i++)
             Remap_pixel(&Gfx->Layer_sprite[l][k][j][i]);

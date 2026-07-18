@@ -491,7 +491,8 @@ typedef struct
   /// Bitmap data for the different "effects" icons.
   byte Effect_sprite[NB_EFFECTS_SPRITES][EFFECT_SPRITE_HEIGHT][EFFECT_SPRITE_WIDTH];
   /// Bitmap data for the different Layer icons.
-  byte Layer_sprite[3][16][LAYER_SPRITE_HEIGHT][LAYER_SPRITE_WIDTH];
+  /// The 17th icon is used for locked layers.
+  byte Layer_sprite[3][MAX_NB_LAYERS+1][LAYER_SPRITE_HEIGHT][LAYER_SPRITE_WIDTH];
   /// Bitmap data for the Grafx2 logo that appears on splash screen. All 256 colors allowed.
   byte Logo_grafx2[231*56];
   /// Bitmap data for the 6x8 font used in help screens.

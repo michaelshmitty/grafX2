@@ -34,7 +34,7 @@
 
 #include "haiku.h"
 
-qword haiku_get_free_space(char* path)
+qword haiku_get_free_space(const char* path)
 {
 	BEntry bpath(path);
 	entry_ref ref;

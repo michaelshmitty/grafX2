@@ -1371,13 +1371,17 @@ byte Add_layer(T_List_of_pages *list, int layer)
     new_page->Image[i]=new_page->Image[i-1];
   }
   new_page->Image[layer].Pixels=new_image;
-  if (list->Pages->Nb_layers==0)
-    duration=100;
-  else if (layer>0)
-    duration=new_page->Image[layer-1].Duration;
-  else
-    duration=new_page->Image[1].Duration;
-  new_page->Image[layer].Duration=duration;
+  if (list->Pages->Image_mode == IMAGE_MODE_ANIMATION) {
+    if (list->Pages->Nb_layers==0)
+      duration=100;
+    else if (layer>0)
+      duration=new_page->Image[layer-1].Duration;
+    else
+      duration=new_page->Image[1].Duration;
+    new_page->Image[layer].Duration=duration;
+  } else {
+    new_page->Image[layer].Locked=0;
+  }
   // Fill with transparency, initially
   memset(new_image, Main.backups->Pages->Transparent_color, list->Pages->Height*list->Pages->Width); // transparent color
   

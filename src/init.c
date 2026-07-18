@@ -426,10 +426,10 @@ static byte Parse_skin(T_GFX2_Surface * gui, T_Gui_skin *gfx)
   }
   cursor_y+=EFFECT_SPRITE_HEIGHT;
   
-  // Layer sprite
+  // Layer sprite. There is one extra sprite for "locked" layers
   for (j=0; j<3; j++)
   {
-    for (i=0; i<16; i++)
+    for (i=0; i<MAX_NB_LAYERS+1; i++)
     {
       if (i==0)
       {
