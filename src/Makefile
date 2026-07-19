@@ -79,7 +79,7 @@ endif
   RECOILVER := $(shell grep RECOILVER= ../3rdparty/Makefile | sed 's/RECOILVER= *//')
 
 # Video / input API used
-  API ?= sdl
+  API ?= sdl2
 
 # At the moment support for TTF requires SDL or SDL2
   ifneq (sdl,$(findstring sdl,$(API)))
@@ -426,9 +426,9 @@ endif
       LUACOPT = -D__ENABLE_LUA__ $(shell $(PKG_CONFIG) $(LUAPKG) --cflags)
       LUALOPT = $(shell $(PKG_CONFIG) $(LUAPKG) --libs)
     endif
-    COPT = -W -Wall -g $(shell sdl-config --cflags) $(TTFCOPT) -I/boot/common/include $(LUACOPT)
+    COPT = -W -Wall -g $(shell sdl2-config --cflags) $(TTFCOPT) -I/boot/common/include $(LUACOPT)
     COPT += -DENABLE_FILENAMES_ICONV
-    LOPT = $(shell sdl-config --libs) -lSDL_image -lpng -ljpeg -lz $(TTFLOPT) -lfreetype -lbe $(LUALOPT) -liconv -ltiff
+    LOPT = $(shell sdl2-config --libs) -lSDL_image -lpng -ljpeg -lz $(TTFLOPT) -lfreetype -lbe $(LUALOPT) -liconv -ltiff
     #Append the gcc kind to the objdir (gcc2 or gcc4) to avoid conflicts when switching from one to other.
     OBJKIND = $(shell gcc -dumpversion)
     OBJDIR = ../obj/haiku/$(OBJKIND)
@@ -909,7 +909,7 @@ DEP = $(patsubst %.o,%.d,$(OBJ) $(TESTSOBJ))
 GENERATEDOCOBJ = $(addprefix $(OBJDIR)/,generatedoc.o hotkeys.o keyboard.o)
 
 SKINS = skin_classic.png skin_modern.png skin_DPaint.png \
-        font_Classic.png font_Fun.png font_Fairlight.png \
+        font_Classic.png font_Elmer.png font_Fairlight.png font_Fun.png \
         font_Melon.png font_DPaint.png \
         skin_scenish.png font_Seen.png skin_Aurora.png \
         skin_chrisfx.png skin_black.png skin_klin.png

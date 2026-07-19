@@ -93,6 +93,7 @@ Section "Grafx2" SecProgram
   SetOutPath "$INSTDIR\share\grafx2\skins"
   File ..\share\grafx2\skins\font_Classic.png
   File ..\share\grafx2\skins\font_DPaint.png
+  File ..\share\grafx2\skins\font_Elmer.png
   File ..\share\grafx2\skins\font_Fairlight.png
   File ..\share\grafx2\skins\font_Fun.png
   File ..\share\grafx2\skins\font_Melon.png
