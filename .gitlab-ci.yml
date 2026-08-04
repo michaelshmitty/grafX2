@@ -69,10 +69,10 @@ job_win32:
         - apt-get update -qq && apt-get install -y -qq zip dos2unix gpg jq
         - apt-get install -y -qq gcc-mingw-w64-i686 g++-mingw-w64-i686 mingw-w64-tools nsis
     script:
-        - "WIN32CROSS=1 make 3rdparty -j2 || exit 1"
-        - "WIN32CROSS=1 make -j2 || exit 1"
-        - "WIN32CROSS=1 make ziprelease || exit 1"
-        - "WIN32CROSS=1 make win32installer || exit 1"
+        - "WIN32CROSS=1 API=sdl make 3rdparty -j2 || exit 1"
+        - "WIN32CROSS=1 API=sdl make -j2 || exit 1"
+        - "WIN32CROSS=1 API=sdl make ziprelease || exit 1"
+        - "WIN32CROSS=1 API=sdl make win32installer || exit 1"
         - "WIN32CROSS=1 API=win32 make -j2 || exit 1"
         - "WIN32CROSS=1 API=win32 make ziprelease || exit 1"
         - "WIN32CROSS=1 API=win32 make win32installer || exit 1"
