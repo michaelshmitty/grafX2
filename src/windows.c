@@ -563,7 +563,7 @@ void Display_layerbar(void)
         sprite_index=2;
 
       // Special sprite for "locked" layers
-      if (Main.backups->Pages->Image[current_button].Locked) {
+      if (Main.backups->Pages->Image[current_button].u.Locked) {
         sprite_button_index = MAX_NB_LAYERS;
       } else {
         sprite_button_index = current_button;

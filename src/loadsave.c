@@ -329,7 +329,7 @@ void Set_frame_duration(T_IO_Context *context, int duration)
   switch(context->Type)
   {
     case CONTEXT_MAIN_IMAGE:
-      Main.backups->Pages->Image[context->Current_layer].Duration = duration;
+      Main.backups->Pages->Image[context->Current_layer].u.Duration = duration;
       break;
     default:
       break;
@@ -341,7 +341,7 @@ int Get_frame_duration(T_IO_Context *context)
   switch(context->Type)
   {
     case CONTEXT_MAIN_IMAGE:
-      return Main.backups->Pages->Image[context->Current_layer].Duration;
+      return Main.backups->Pages->Image[context->Current_layer].u.Duration;
     default:
       return 0;
   }

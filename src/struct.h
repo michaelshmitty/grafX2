@@ -396,7 +396,7 @@ typedef struct T_Image
   union {
     int Duration; // For animation
     int Locked; // For layers, prevents editing
-  };
+  } u;
 } T_Image;
 
 /// This is the data for one step of Undo/Redo, for one image.

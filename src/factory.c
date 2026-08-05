@@ -35,6 +35,7 @@
 #include "global.h"
 #include "graph.h"
 #include "io.h"     // find_last_separator
+#include "layers.h"
 #include "misc.h"
 #include "osdep.h"
 #include "pages.h"  // Backup()

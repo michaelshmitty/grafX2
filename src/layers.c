@@ -77,7 +77,7 @@ void Layer_activate(int layer, short side)
     {
       if (Main.current_layer == layer) {
         // Left click on current layer: lock/unlock
-        Main.backups->Pages->Image[layer].Locked = !Main.backups->Pages->Image[layer].Locked;
+        Main.backups->Pages->Image[layer].u.Locked = !Main.backups->Pages->Image[layer].u.Locked;
       } else {
         // Left-click on any other layer: activate it
         Main.current_layer = layer;
@@ -483,7 +483,7 @@ void Button_Anim_time(int btn)
   int frame;
   char buffer[6+1];
   T_Special_button * input_duration_button;
-  int duration=Main.backups->Pages->Image[Main.current_layer].Duration;
+  int duration=Main.backups->Pages->Image[Main.current_layer].u.Duration;
   
   Open_window(166,110,"Animation speed");
 
@@ -564,7 +564,7 @@ void Button_Anim_time(int btn)
           duration=0;
         else if (duration>655350)
           duration=655350;
-        Main.backups->Pages->Image[Main.current_layer].Duration = duration;
+        Main.backups->Pages->Image[Main.current_layer].u.Duration = duration;
         break;
       case 1:
         if (duration<0)
@@ -573,18 +573,18 @@ void Button_Anim_time(int btn)
           duration=655350;
         for (frame=0; frame<Main.backups->Pages->Nb_layers; frame++)
         {
-          Main.backups->Pages->Image[frame].Duration = duration;
+          Main.backups->Pages->Image[frame].u.Duration = duration;
         }
         break;
       case 2:
         for (frame=0; frame<Main.backups->Pages->Nb_layers; frame++)
         {
-          int cur_duration = Main.backups->Pages->Image[frame].Duration+duration;
+          int cur_duration = Main.backups->Pages->Image[frame].u.Duration+duration;
           if (cur_duration<0)
             cur_duration=0;
           else if (cur_duration>655350)
             cur_duration=655350;
-          Main.backups->Pages->Image[frame].Duration = cur_duration;
+          Main.backups->Pages->Image[frame].u.Duration = cur_duration;
         }
         break;
       break;
@@ -663,9 +663,9 @@ void Button_Anim_continuous_next(int btn)
     time_in_current_frame += time_now-time_start;
     time_start=time_now;
     target_frame = Main.current_layer;
-    while (time_in_current_frame > Main.backups->Pages->Image[target_frame].Duration)
+    while (time_in_current_frame > Main.backups->Pages->Image[target_frame].u.Duration)
     {
-      time_in_current_frame -= Interpret_delay(Main.backups->Pages->Image[target_frame].Duration);
+      time_in_current_frame -= Interpret_delay(Main.backups->Pages->Image[target_frame].u.Duration);
       target_frame = (target_frame+1) % Main.backups->Pages->Nb_layers;
     }
     if (target_frame != Main.current_layer)
@@ -698,9 +698,9 @@ void Button_Anim_continuous_prev(int btn)
     time_in_current_frame += time_now-time_start;
     time_start=time_now;
     target_frame = Main.current_layer;
-    while (time_in_current_frame > Main.backups->Pages->Image[target_frame].Duration)
+    while (time_in_current_frame > Main.backups->Pages->Image[target_frame].u.Duration)
     {
-      time_in_current_frame -= Interpret_delay(Main.backups->Pages->Image[target_frame].Duration);
+      time_in_current_frame -= Interpret_delay(Main.backups->Pages->Image[target_frame].u.Duration);
       target_frame = (target_frame+Main.backups->Pages->Nb_layers-1) % Main.backups->Pages->Nb_layers;
     }
     if (target_frame != Main.current_layer)

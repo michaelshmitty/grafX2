@@ -1658,7 +1658,7 @@ void Main_handler(void)
     {
         Cursor_in_menu_previous = 1;
     }
-    else if ((Main.backups->Pages->Image_mode == IMAGE_MODE_ANIMATION) || !Main.backups->Pages->Image[Main.current_layer].Locked)
+    else if ((Main.backups->Pages->Image_mode == IMAGE_MODE_ANIMATION) || !Main.backups->Pages->Image[Main.current_layer].u.Locked)
     {
       blink=Operation[Current_operation][Mouse_K_unique][Operation_stack_size].Hide_cursor;
  

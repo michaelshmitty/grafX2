@@ -72,7 +72,7 @@ T_Page * New_page(int nb_layers)
     for (i=0; i<nb_layers; i++)
     {
       page->Image[i].Pixels = NULL;
-      page->Image[i].Locked = 0;
+      page->Image[i].u.Locked = 0;
     }
     page->Width=0;
     page->Height=0;
@@ -440,7 +440,7 @@ void Clear_page(T_Page * page)
   {
     Free_layer(page, i);
     page->Image[i].Pixels=NULL;
-    page->Image[i].Duration=0;
+    page->Image[i].u.Duration=0;
   }
 
   // Free_gradient() : This data is reference-counted
@@ -639,7 +639,7 @@ int Create_new_page(T_Page * new_page, T_List_of_pages * list, int layer)
         new_page->Image[i].Pixels=New_layer(new_page->Height*new_page->Width);
       else
         new_page->Image[i].Pixels=Dup_layer(list->Pages->Image[i].Pixels);
-      new_page->Image[i].Duration=list->Pages->Image[i].Duration;
+      new_page->Image[i].u.Duration=list->Pages->Image[i].u.Duration;
     }
   }
   
@@ -1375,12 +1375,12 @@ byte Add_layer(T_List_of_pages *list, int layer)
     if (list->Pages->Nb_layers==0)
       duration=100;
     else if (layer>0)
-      duration=new_page->Image[layer-1].Duration;
+      duration=new_page->Image[layer-1].u.Duration;
     else
-      duration=new_page->Image[1].Duration;
-    new_page->Image[layer].Duration=duration;
+      duration=new_page->Image[1].u.Duration;
+    new_page->Image[layer].u.Duration=duration;
   } else {
-    new_page->Image[layer].Locked=0;
+    new_page->Image[layer].u.Locked=0;
   }
   // Fill with transparency, initially
   memset(new_image, Main.backups->Pages->Transparent_color, list->Pages->Height*list->Pages->Width); // transparent color
