@@ -104,8 +104,9 @@ LIBTIFFVERMAJOR = $(shell echo $(LIBTIFFVER) | cut -d. -f1)
 LIBTIFFVERMINOR = $(shell echo $(LIBTIFFVER) | cut -d. -f2)
 ifeq ($(shell if [ $(LIBTIFFVERMAJOR) -lt 4 ] || [ \( $(LIBTIFFVERMAJOR) -eq 4 \) -a \( $(LIBTIFFVERMINOR) -lt 3 \) ] ; then echo true ; fi),true)
 # the uint64 patch is needed up to version 4.2.0
-LIBTIFFPATCHES = tiff-uint64_long_long.patch tiff-atari-log2.patch
+LIBTIFFPATCHES = tiff-uint64_long_long.patch
 endif
+LIBTIFFPATCHES += tiff-atari-log2.patch
 # additionnal variables for the generic rules to work :
 TIFFARCH = $(LIBTIFFARCH)
 TIFFSIG = $(TIFFARCH).sig
