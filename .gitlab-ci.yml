@@ -33,8 +33,8 @@ job_linux:
         - apt-get install -y -qq libsdl1.2-dev libpng-dev libsdl-ttf2.0-dev libsdl-image1.2-dev liblua5.3-dev
         - apt-get install -y -qq libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libasound2-plugins libpulse0 doxygen graphviz
     script:
-        - "make -j3 || exit 1"
-        - "make ziprelease || exit 1"
+        - "API=sdl make -j3 || exit 1"
+        - "API=sdl make ziprelease || exit 1"
         - "API=sdl2 make -j3 && API=sdl2 make ziprelease || exit 1"
         - ./.build-appimage.sh
         - "make docarchive || exit 1"
@@ -90,13 +90,16 @@ job_win32:
 
 job_atari:
     stage: build
+    variables:
+        API: sdl
+        ATARICROSS: 1
     before_script:
         - apt-get update -qq && apt-get install -y -qq zip dos2unix lsb-release gpg jq
         - "sh ./.install-cross-mint.sh"
     script:
-        - "ATARICROSS=1 make 3rdparty -j2 || exit 1"
-        - "ATARICROSS=1 make -j2 || exit 1"
-        - "ATARICROSS=1 make ziprelease || exit 1"
+        - "make 3rdparty -j2 || exit 1"
+        - "make -j2 || exit 1"
+        - "make ziprelease || exit 1"
     after_script:
         - "echo $CI_JOB_ID > ATARI_JOB_ID"
     artifacts:
