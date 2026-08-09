@@ -1,4 +1,4 @@
-# (c) 2018-2025 Thomas BERNARD
+# (c) 2018-2026 Thomas BERNARD
 #
 # Makefile to build GrafX2 library dependencies.
 #
@@ -103,8 +103,8 @@ LIBTIFFURLALT = https://fossies.org/linux/misc/$(LIBTIFFARCH)
 LIBTIFFVERMAJOR = $(shell echo $(LIBTIFFVER) | cut -d. -f1)
 LIBTIFFVERMINOR = $(shell echo $(LIBTIFFVER) | cut -d. -f2)
 ifeq ($(shell if [ $(LIBTIFFVERMAJOR) -lt 4 ] || [ \( $(LIBTIFFVERMAJOR) -eq 4 \) -a \( $(LIBTIFFVERMINOR) -lt 3 \) ] ; then echo true ; fi),true)
-# this patch is needed up to version 4.2.0
-LIBTIFFPATCHES = tiff-uint64_long_long.patch
+# the uint64 patch is needed up to version 4.2.0
+LIBTIFFPATCHES = tiff-uint64_long_long.patch tiff-atari-log2.patch
 endif
 # additionnal variables for the generic rules to work :
 TIFFARCH = $(LIBTIFFARCH)

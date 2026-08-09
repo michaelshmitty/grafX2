@@ -1,0 +1,17 @@
+--- tiff-4.7.2/libtiff/tif_luv.c.orig	2026-08-09 18:37:26.386225380 +0200
++++ tiff-4.7.2/libtiff/tif_luv.c	2026-08-09 18:39:15.485575481 +0200
+@@ -768,6 +768,14 @@
+ #define M_PI 3.14159265358979323846
+ #endif
+ 
++#if defined(__atarist__) || defined(__MINT__)
++/* our Atari toolchain doesn't provide log2() */
++#undef log2 /* Conflict with C'99 function */
++#define log2(x) ((1. / M_LN2) * log(x))
++#undef exp2 /* Conflict with C'99 function */
++#define exp2(x) exp(M_LN2 *(x))
++#endif
++
+ #define TIFF_RAND_MAX 32767
+ 
+ // From POSIX.1-2001 as an example of an implementation of rand()
